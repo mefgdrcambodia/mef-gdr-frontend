@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "mef-gdr"
+  },
+  "targets": {
+    "mef-gdr": {
+      "hosting": {
+        "uat": [
+          "uat-mef-gdr-frontend"
+        ],
+        "prod": [
+          "prod-mef-gdr-fronted"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
