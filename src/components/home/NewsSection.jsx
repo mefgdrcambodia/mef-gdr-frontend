@@ -182,15 +182,15 @@ const NewsSection = ({ layout = "default" }) => {
     const title = currentLang === "km" ? item.titleKh : item.titleEn;
     return (
       <div
-        className="group cursor-pointer border-b border-gray-100 last:border-0 py-3 transition-all duration-300 hover:bg-gray-50 rounded-lg px-2"
+        className="group cursor-pointer border-b border-gray-100 last:border-0 py-4 transition-all duration-300 hover:bg-gray-50 rounded-lg px-3"
         onClick={() => onClick(item)}
       >
         <div className="flex gap-3">
-          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-            <img src={item.mainImage} alt={title} className="w-full h-full object-cover" />
+          <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+            <img src={item.mainImage} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 mb-2">
               <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full">
                 {currentLang === "km" ? "ព័ត៌មាន" : "News"}
               </span>
@@ -199,16 +199,16 @@ const NewsSection = ({ layout = "default" }) => {
                 <span>{formatDate(item.publishedDate)}</span>
               </span>
             </div>
-            <TruncatedText text={title} lines={2} className="text-xs font-medium text-gray-800 mb-1 leading-relaxed" />
-            <div className="flex items-center gap-2 mt-0.5 text-[9px] text-gray-400">
+            <TruncatedText text={title} lines={2} className="text-sm font-semibold text-gray-800 mb-2 leading-relaxed group-hover:text-green-600 transition-colors" />
+            <div className="flex items-center gap-3 mt-1">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleLike(item);
                 }}
-                className={`flex items-center gap-0.5 transition-colors ${item.liked ? "text-red-500" : "hover:text-red-400"}`}
+                className={`flex items-center gap-1 text-[10px] transition-colors ${item.liked ? "text-red-500" : "text-gray-400 hover:text-red-400"}`}
               >
-                <Heart size={8} className={item.liked ? "fill-red-500" : ""} />
+                <Heart size={10} className={item.liked ? "fill-red-500" : ""} />
                 <span>{item.likes || 0}</span>
               </button>
               <button
@@ -216,14 +216,14 @@ const NewsSection = ({ layout = "default" }) => {
                   e.stopPropagation();
                   handleShare(item);
                 }}
-                className={`flex items-center gap-0.5 transition-colors ${item.shared ? "text-green-600" : "hover:text-green-500"}`}
+                className={`flex items-center gap-1 text-[10px] transition-colors ${item.shared ? "text-green-600" : "text-gray-400 hover:text-green-500"}`}
               >
-                <Share2 size={8} />
+                <Share2 size={10} />
                 <span>{item.shares || 0}</span>
               </button>
             </div>
           </div>
-          <ChevronRight size={14} className="text-gray-400 mt-1 group-hover:text-green-600" />
+          <ChevronRight size={16} className="text-gray-400 self-center group-hover:text-green-600 group-hover:translate-x-1 transition-all" />
         </div>
       </div>
     );
@@ -253,7 +253,7 @@ const NewsSection = ({ layout = "default" }) => {
           </div>
         </div>
 
-        {/* News List - Exactly 5 items */}
+        {/* News List - Full height cards */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex-1 flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2">
@@ -267,7 +267,7 @@ const NewsSection = ({ layout = "default" }) => {
                 <button
                   onClick={() => setRightPage((p) => Math.max(1, p - 1))}
                   disabled={rightPage === 1}
-                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50 transition-colors"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -277,35 +277,39 @@ const NewsSection = ({ layout = "default" }) => {
                 <button
                   onClick={() => setRightPage((p) => Math.min(rightTotalPages, p + 1))}
                   disabled={rightPage === rightTotalPages}
-                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                  className="p-1 hover:bg-gray-100 rounded disabled:opacity-50 transition-colors"
                 >
                   <ChevronRight size={14} />
                 </button>
               </div>
             )}
           </div>
-          <div className="p-2 flex-1">
+          <div className="flex-1 overflow-y-auto">
             {rightLoading ? (
               // Show 5 loading skeletons
-              [1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="py-3 flex gap-3 animate-pulse">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 w-20 bg-gray-200 rounded"></div>
-                    <div className="h-4 w-full bg-gray-200 rounded"></div>
-                    <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+              <div className="p-2 space-y-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="py-4 flex gap-3 animate-pulse px-3">
+                    <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-20 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-full bg-gray-200 rounded"></div>
+                      <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : localRightNews.length === 0 ? (
-              <div className="text-center py-8">
+              <div className="text-center py-12">
+                <Newspaper size={48} className="text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">No news available</p>
               </div>
             ) : (
-              // Show exactly 5 news items
-              localRightNews.slice(0, 5).map((item) => (
-                <ListItem key={item.id} item={item} onClick={handleReadMore} />
-              ))
+              <div className="p-2">
+                {localRightNews.slice(0, 5).map((item) => (
+                  <ListItem key={item.id} item={item} onClick={handleReadMore} />
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -326,39 +330,39 @@ const NewsSection = ({ layout = "default" }) => {
           <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-100 z-10">
               <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-                <button onClick={() => setShowDetail(false)} className="flex items-center space-x-1.5 text-gray-500 hover:text-green-600">
+                <button onClick={() => setShowDetail(false)} className="flex items-center space-x-1.5 text-gray-500 hover:text-green-600 transition-colors">
                   <ArrowLeft size={16} />
                   <span>{t.back}</span>
                 </button>
-                <button onClick={() => handleShare(selectedNews)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <button onClick={() => handleShare(selectedNews)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                   <Share2 size={16} />
                 </button>
               </div>
             </div>
             <div className="max-w-4xl mx-auto px-4 py-6">
-              <div className="relative h-64 rounded-xl overflow-hidden mb-6">
+              <div className="relative h-80 md:h-96 rounded-xl overflow-hidden mb-6">
                 <img src={selectedNews.mainImage} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                <h1 className="absolute bottom-4 left-4 right-4 text-xl font-bold text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                <h1 className="absolute bottom-4 left-4 right-4 text-xl md:text-2xl font-bold text-white leading-tight">
                   {currentLang === "km" ? selectedNews.titleKh : selectedNews.titleEn}
                 </h1>
               </div>
-              <div className="flex items-center gap-4 mb-6 pb-4 border-b">
-                <span className="flex items-center gap-1 text-sm text-gray-500">
-                  <Calendar size={14} className="text-green-600" />
+              <div className="flex items-center gap-4 mb-6 pb-4 border-b flex-wrap">
+                <span className="flex items-center gap-1.5 text-sm text-gray-500">
+                  <Calendar size={16} className="text-green-600" />
                   {formatDate(selectedNews.publishedDate)}
                 </span>
-                <button onClick={() => handleLike(selectedNews)} className={`flex items-center gap-1 px-3 py-1 rounded-lg border ${selectedNews.liked ? "bg-red-50 border-red-200 text-red-500" : "border-gray-200 text-gray-500"}`}>
+                <button onClick={() => handleLike(selectedNews)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-200 ${selectedNews.liked ? "bg-red-50 border-red-200 text-red-500" : "border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-200 hover:text-red-400"}`}>
                   <Heart size={14} className={selectedNews.liked ? "fill-red-500" : ""} />
-                  <span>{selectedNews.likes || 0}</span>
+                  <span>{selectedNews.likes || 0} {t.likes}</span>
                 </button>
-                <button onClick={() => handleShare(selectedNews)} className={`flex items-center gap-1 px-3 py-1 rounded-lg border ${selectedNews.shared ? "bg-green-50 border-green-200 text-green-600" : "border-gray-200 text-gray-500"}`}>
+                <button onClick={() => handleShare(selectedNews)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-200 ${selectedNews.shared ? "bg-green-50 border-green-200 text-green-600" : "border-gray-200 text-gray-500 hover:bg-green-50 hover:border-green-200 hover:text-green-500"}`}>
                   <Share2 size={14} />
-                  <span>{selectedNews.shares || 0}</span>
+                  <span>{selectedNews.shares || 0} {t.shares}</span>
                 </button>
               </div>
               <div
-                className="prose max-w-none text-gray-600 leading-relaxed"
+                className="prose prose-sm sm:prose max-w-none text-gray-600 leading-relaxed"
                 dangerouslySetInnerHTML={{
                   __html: currentLang === "km" ? selectedNews.contentKh : selectedNews.contentEn,
                 }}
@@ -369,28 +373,33 @@ const NewsSection = ({ layout = "default" }) => {
 
         {/* Share Modal */}
         {shareModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[70]">
-            <div className="bg-white rounded-xl p-5 max-w-sm w-full mx-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium">{t.shareVia}</h3>
-                <button onClick={() => setShareModal(false)} className="p-1 hover:bg-gray-100 rounded">
-                  <X size={18} />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70]">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="flex justify-between items-center mb-5">
+                <h3 className="font-semibold text-gray-900">{t.shareVia}</h3>
+                <button onClick={() => setShareModal(false)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                  <X size={18} className="text-gray-500" />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { name: "Facebook", color: "bg-blue-600", icon: <Facebook size={16} /> },
-                  { name: "Twitter", color: "bg-sky-500", icon: <Twitter size={16} /> },
-                  { name: "LinkedIn", color: "bg-blue-700", icon: <Linkedin size={16} /> },
+                  { name: "Facebook", color: "bg-[#1877F2] hover:bg-[#0D6BD4]", icon: <Facebook size={16} /> },
+                  { name: "Twitter", color: "bg-[#1DA1F2] hover:bg-[#0D8BD9]", icon: <Twitter size={16} /> },
+                  { name: "LinkedIn", color: "bg-[#0077B5] hover:bg-[#006699]", icon: <Linkedin size={16} /> },
                 ].map((social) => (
-                  <button key={social.name} onClick={() => { setShareModal(false); }} className={`${social.color} text-white py-2 rounded-lg flex items-center justify-center gap-2`}>
+                  <button key={social.name} onClick={() => { setShareModal(false); }} className={`${social.color} text-white py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:scale-105`}>
                     {social.icon} {social.name}
                   </button>
                 ))}
               </div>
-              <div className="mt-4 flex gap-2">
-                <input type="text" value={window.location.href} readOnly className="flex-1 px-3 py-2 border rounded-lg text-sm" />
-                <button onClick={handleCopyLink} className="px-4 py-2 bg-green-600 text-white rounded-lg">Copy</button>
+              <div className="mt-5">
+                <p className="text-xs text-gray-500 mb-2">{t.copyLink}</p>
+                <div className="flex gap-2">
+                  <input type="text" value={window.location.href} readOnly className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 text-gray-600" />
+                  <button onClick={handleCopyLink} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 text-sm font-medium">
+                    {t.copyLink}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

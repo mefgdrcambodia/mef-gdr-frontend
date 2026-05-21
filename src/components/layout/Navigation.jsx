@@ -52,28 +52,6 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
       icon: Home,
       dropdown: false
     },
-    // { 
-    //   id: 'about',
-    //   label: 'អំពីអគ្គនាយកដ្ឋាន', 
-    //   labelEn: 'ABOUT GENERAL DEPARTMENT',
-    //   path: '/about',
-    //   icon: Info,
-    //   dropdown: true,
-    //   subItems: {
-    //     km: [
-    //       { label: 'រចនាសម្ព័ន្ធនៃការគ្រប់គ្រង', path: '/about/management', icon: Building },
-    //       { label: 'តួនាទី និងភារកិច្ច', path: '/about/roles', icon: Briefcase },
-    //       { label: 'សារអគ្គនាយក', path: '/about/director-message', icon: MessageCircle },
-    //       { label: 'សុន្ទរកថា', path: '/about/speech', icon: Mic }
-    //     ],
-    //     en: [
-    //       { label: 'Management Structure', path: '/about/management', icon: Building },
-    //       { label: 'Roles & Responsibilities', path: '/about/roles', icon: Briefcase },
-    //       { label: "Director's Message", path: '/about/director-message', icon: MessageCircle },
-    //       { label: 'Speech', path: '/about/speech', icon: Mic }
-    //     ]
-    //   }
-    // },
     { 
       id: 'news',
       label: 'ព័ត៌មាន', 
@@ -94,8 +72,6 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         ]
       }
     },
-    
-
     { 
       id: 'documents',
       label: 'លិខិតបទដ្ឋានគតិយុត្ត', 
@@ -106,18 +82,10 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
       hasNested: true,
       subItems: {
         km: [
-          { 
-            label: 'លិខិតបទដ្ឋានគតិយុត្ត', 
-            icon: Scale,
-            path: '/legal',
-            hasNested: true,
-            nestedItems: [
-              { label: 'ច្បាប់', path: '/legal?type=law', icon: Book },
-              { label: 'អនុក្រឹត្យ', path: '/legal?type=sub-decree', icon: FileText },
-              { label: 'សារាចរ', path: '/legal?type=circular', icon: FileSignature },
-              { label: 'ប្រកាស', path: '/legal?type=declaration', icon: Megaphone }
-            ]
-          },
+          { label: 'ច្បាប់', path: '/legal?type=law', icon: Book },
+          { label: 'អនុក្រឹត្យ', path: '/legal?type=sub-decree', icon: FileText },
+          { label: 'សារាចរ', path: '/legal?type=circular', icon: FileSignature },
+          { label: 'ប្រកាស', path: '/legal?type=declaration', icon: Megaphone },
           { 
             label: 'ផ្សេងៗ', 
             icon: FileText,
@@ -125,18 +93,10 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
           }
         ],
         en: [
-          { 
-            label: 'Legal Documents', 
-            icon: Scale,
-            path: '/legal',
-            hasNested: true,
-            nestedItems: [
-              { label: 'Law', path: '/legal?type=law', icon: Book },
-              { label: 'Sub-Decree', path: '/legal?type=sub-decree', icon: FileText },
-              { label: 'Circular', path: '/legal?type=circular', icon: FileSignature },
-              { label: 'Declaration', path: '/legal?type=declaration', icon: Megaphone }
-            ]
-          },
+          { label: 'Law', path: '/legal?type=law', icon: Book },
+          { label: 'Sub-Decree', path: '/legal?type=sub-decree', icon: FileText },
+          { label: 'Circular', path: '/legal?type=circular', icon: FileSignature },
+          { label: 'Declaration', path: '/legal?type=declaration', icon: Megaphone },
           { 
             label: 'Others', 
             icon: FileText,
@@ -145,24 +105,6 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         ],
       }
     },
-    // { 
-    //   id: 'reports',
-    //   label: 'របាយការណ៍', 
-    //   labelEn: 'REPORTS',
-    //   path: '/reports',
-    //   icon: BarChart3,
-    //   dropdown: true,
-    //   subItems: {
-    //     km: [
-    //       { label: 'របាយការណ៍ SSMR', path: '/reports?type=ssmr', icon: FileCheck },
-    //       { label: 'របាយការណ៍ DRP', path: '/reports?type=drp', icon: ScrollText },
-    //     ],
-    //     en: [
-    //       { label: 'SSMR Report', path: '/reports?type=ssmr', icon: FileCheck },
-    //       { label: 'DRP Report', path: '/reports?type=drp', icon: ScrollText },
-    //     ]
-    //   }
-    // },
   ];
 
   // Handle click outside to close dropdowns
@@ -224,7 +166,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
     if (currentLang === 'km') {
       return item.label;
     }
-    return item.labelEn;
+    return item.labelEn || item.label;
   };
 
   const handleNavigation = (path) => {
@@ -287,42 +229,32 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
   const isItemActive = (item) => {
     // Direct path match
-    if (item.path === location.pathname) return true;
+    if (item.path && item.path === location.pathname) return true;
     
-    // Check subitems
-    if (item.subItems) {
+    // Check subitems if they exist
+    if (item.subItems && item.subItems[currentLang]) {
       const isSubItemActive = item.subItems[currentLang].some(subItem => {
-        // Check if the subitem path matches (with query params)
-        const subItemPath = subItem.path.split('?')[0];
-        const currentPath = location.pathname;
-        if (subItemPath === currentPath) return true;
-        
-        // Check for query parameter match
-        const queryParams = new URLSearchParams(location.search);
-        const reportType = queryParams.get('type');
-        
-        // For reports subitems, check if the type matches
-        if (item.id === 'reports') {
-          if (subItem.label === 'របាយការណ៍ SSMR' || subItem.labelEn === 'SSMR Report') {
-            if (reportType === 'ssmr') return true;
-          }
-          if (subItem.label === 'របាយការណ៍ DRP' || subItem.labelEn === 'DRP Report') {
-            if (reportType === 'drp') return true;
-          }
-        }
-        
+        // Check nested items first (for documents section)
         if (subItem.nestedItems) {
-          return subItem.nestedItems.some(nested => nested.path === location.pathname);
+          return subItem.nestedItems.some(nested => {
+            if (nested.path) {
+              const nestedPath = nested.path.split('?')[0];
+              return nestedPath === location.pathname;
+            }
+            return false;
+          });
         }
+        
+        // Check direct path for non-nested subitems
+        if (subItem.path) {
+          const subItemPath = subItem.path.split('?')[0];
+          return subItemPath === location.pathname;
+        }
+        
         return false;
       });
       
       if (isSubItemActive) return true;
-    }
-    
-    // Special handling for reports parent - highlight when on any /reports page
-    if (item.id === 'reports' && (location.pathname === '/reports' || location.pathname.startsWith('/reports'))) {
-      return true;
     }
     
     return false;
@@ -373,7 +305,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                   )}
                 </button>
                 
-                {item.dropdown && (
+                {item.dropdown && item.subItems && item.subItems[currentLang] && (
                   <div 
                     className={`
                       absolute left-0 mt-2 min-w-[260px] bg-white rounded-2xl shadow-2xl border border-gray-100 py-2
@@ -388,23 +320,8 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                     <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
                     
                     {item.subItems[currentLang].map((subItem, i) => {
-                      // Check if this specific subitem is active
-                      let isSubActive = false;
-                      const queryParams = new URLSearchParams(location.search);
-                      const reportType = queryParams.get('type');
-                      
-                      if (item.id === 'reports') {
-                        if (subItem.label === 'របាយការណ៍ SSMR' || subItem.labelEn === 'SSMR Report') {
-                          isSubActive = reportType === 'ssmr';
-                        }
-                        if (subItem.label === 'របាយការណ៍ DRP' || subItem.labelEn === 'DRP Report') {
-                          isSubActive = reportType === 'drp';
-                        }
-                      } else {
-                        isSubActive = subItem.path.split('?')[0] === location.pathname;
-                      }
-                      
-                      if (subItem.hasNested) {
+                      // Check if this specific subitem has nested items
+                      if (subItem.hasNested && subItem.nestedItems) {
                         return (
                           <div 
                             key={i} 
@@ -416,29 +333,21 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                               className={`
                                 group w-full flex items-center justify-between px-4 py-3 text-sm transition-all duration-200 
                                 hover:bg-gradient-to-r hover:from-[#4CAF50]/5 hover:to-transparent
-                                ${isSubActive
-                                  ? 'text-[#2E7D32] bg-gradient-to-r from-[#4CAF50]/10 to-transparent font-medium'
-                                  : 'text-gray-700 hover:text-[#2E7D32]'
-                                }
                               `}
                             >
                               <div className="flex items-center flex-1">
                                 {subItem.icon && (
                                   <subItem.icon 
                                     size={16} 
-                                    className={`mr-3 transition-all duration-200 ${
-                                      isSubActive ? 'text-[#4CAF50]' : 'text-gray-400 group-hover:text-[#4CAF50]'
-                                    }`} 
+                                    className="mr-3 text-gray-400 group-hover:text-[#4CAF50] transition-all duration-200"
                                   />
                                 )}
-                                <span>{subItem.label}</span>
+                                <span className="text-gray-700 group-hover:text-[#2E7D32]">{subItem.label}</span>
                               </div>
                               <ChevronRight 
                                 size={14} 
-                                className={`transition-all duration-200 ${
-                                  activeNestedDropdown === `${item.id}-${i}` 
-                                    ? 'translate-x-1 text-[#4CAF50]' 
-                                    : 'text-gray-400 group-hover:text-[#4CAF50]'
+                                className={`transition-all duration-200 text-gray-400 group-hover:text-[#4CAF50] ${
+                                  activeNestedDropdown === `${item.id}-${i}` ? 'translate-x-1 text-[#4CAF50]' : ''
                                 }`} 
                               />
                             </button>
@@ -458,7 +367,8 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                                 <div className="absolute -left-1 top-4 w-2 h-2 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
                                 
                                 {subItem.nestedItems.map((nestedItem, j) => {
-                                  const isNestedActive = nestedItem.path === location.pathname;
+                                  const isNestedActive = nestedItem.path === location.pathname || 
+                                    (nestedItem.path && nestedItem.path.split('?')[0] === location.pathname);
                                   
                                   return (
                                     <button
@@ -491,6 +401,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                         );
                       }
                       
+                      // For non-nested subitems (if any in the future)
                       return (
                         <button
                           key={i}
@@ -498,21 +409,15 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                           className={`
                             group w-full flex items-center px-4 py-3 text-sm transition-all duration-200 
                             hover:pl-6 hover:bg-gradient-to-r hover:from-[#4CAF50]/5 hover:to-transparent
-                            ${isSubActive
-                              ? 'text-[#2E7D32] bg-gradient-to-r from-[#4CAF50]/10 to-transparent font-medium'
-                              : 'text-gray-700 hover:text-[#2E7D32]'
-                            }
                           `}
                         >
                           {subItem.icon && (
                             <subItem.icon 
                               size={16} 
-                              className={`mr-3 transition-all duration-200 ${
-                                isSubActive ? 'text-[#4CAF50]' : 'text-gray-400 group-hover:text-[#4CAF50]'
-                              }`} 
+                              className="mr-3 text-gray-400 group-hover:text-[#4CAF50] transition-all duration-200"
                             />
                           )}
-                          <span>{subItem.label}</span>
+                          <span className="text-gray-700 group-hover:text-[#2E7D32]">{subItem.label}</span>
                         </button>
                       );
                     })}
@@ -558,7 +463,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                   )}
                 </button>
                 
-                {item.dropdown && activeDropdown === item.id && (
+                {item.dropdown && activeDropdown === item.id && item.subItems && item.subItems[currentLang] && (
                   <div 
                     className="fixed bg-white rounded-2xl shadow-2xl border border-gray-100 py-2"
                     style={{ 
@@ -580,23 +485,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                     }}
                   >
                     {item.subItems[currentLang].map((subItem, i) => {
-                      // Check if this specific subitem is active
-                      let isSubActive = false;
-                      const queryParams = new URLSearchParams(location.search);
-                      const reportType = queryParams.get('type');
-                      
-                      if (item.id === 'reports') {
-                        if (subItem.label === 'របាយការណ៍ SSMR' || subItem.labelEn === 'SSMR Report') {
-                          isSubActive = reportType === 'ssmr';
-                        }
-                        if (subItem.label === 'របាយការណ៍ DRP' || subItem.labelEn === 'DRP Report') {
-                          isSubActive = reportType === 'drp';
-                        }
-                      } else {
-                        isSubActive = subItem.path.split('?')[0] === location.pathname;
-                      }
-                      
-                      if (subItem.hasNested) {
+                      if (subItem.hasNested && subItem.nestedItems) {
                         return (
                           <div key={i}>
                             <button
@@ -626,24 +515,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                           </div>
                         );
                       }
-                      
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => handleNavigation(subItem.path)}
-                          className={`
-                            group w-full flex items-center px-4 py-3 text-sm transition-all duration-200 
-                            hover:pl-6 hover:bg-gradient-to-r hover:from-[#4CAF50]/5 hover:to-transparent
-                            ${isSubActive
-                              ? 'text-[#2E7D32] bg-gradient-to-r from-[#4CAF50]/10 to-transparent font-medium'
-                              : 'text-gray-700 hover:text-[#2E7D32]'
-                            }
-                          `}
-                        >
-                          {subItem.icon && <subItem.icon size={16} className="mr-3" />}
-                          {subItem.label}
-                        </button>
-                      );
+                      return null;
                     })}
                   </div>
                 )}
@@ -765,24 +637,8 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                               }
                             `}
                           >
-                            {item.subItems[currentLang].map((subItem, i) => {
-                              // Check if this specific subitem is active
-                              let isSubActive = false;
-                              const queryParams = new URLSearchParams(location.search);
-                              const reportType = queryParams.get('type');
-                              
-                              if (item.id === 'reports') {
-                                if (subItem.label === 'របាយការណ៍ SSMR' || subItem.labelEn === 'SSMR Report') {
-                                  isSubActive = reportType === 'ssmr';
-                                }
-                                if (subItem.label === 'របាយការណ៍ DRP' || subItem.labelEn === 'DRP Report') {
-                                  isSubActive = reportType === 'drp';
-                                }
-                              } else {
-                                isSubActive = subItem.path === location.pathname;
-                              }
-                              
-                              if (subItem.hasNested) {
+                            {item.subItems && item.subItems[currentLang] && item.subItems[currentLang].map((subItem, i) => {
+                              if (subItem.hasNested && subItem.nestedItems) {
                                 return (
                                   <div key={i} className="space-y-1">
                                     <button
@@ -809,7 +665,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                                             onClick={() => handleNavigation(nestedItem.path)}
                                             className={`
                                               w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-200
-                                              ${nestedItem.path === location.pathname
+                                              ${nestedItem.path === location.pathname || (nestedItem.path && nestedItem.path.split('?')[0] === location.pathname)
                                                 ? 'text-[#2E7D32] bg-gradient-to-r from-[#4CAF50]/10 to-transparent font-medium'
                                                 : 'text-gray-600 hover:bg-gray-50'
                                               }
@@ -824,24 +680,7 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
                                   </div>
                                 );
                               }
-                              
-                              return (
-                                <button
-                                  key={i}
-                                  onClick={() => handleNavigation(subItem.path)}
-                                  className={`
-                                    w-full flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg transition-all duration-200
-                                    transform hover:translate-x-1
-                                    ${isSubActive
-                                      ? 'text-[#2E7D32] bg-gradient-to-r from-[#4CAF50]/10 to-transparent font-medium'
-                                      : 'text-gray-600 hover:bg-gray-50'
-                                    }
-                                  `}
-                                >
-                                  {subItem.icon && <subItem.icon size={16} className="text-gray-500" />}
-                                  <span className="break-words">{subItem.label}</span>
-                                </button>
-                              );
+                              return null;
                             })}
                           </div>
                         </>

@@ -31,6 +31,7 @@ import { useLegalDocuments } from '../../hooks/useLegal';
 const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayName, getCategoryColor, getCategoryIcon, handleViewDetails, currentLang, stripHtmlTags, handleDownload, downloadCounts, shareCounts, viewCounts }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
   useEffect(() => {
     if (documents.length === 0 || isHovering) return;
@@ -65,6 +66,8 @@ const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayN
   const title = currentLang === 'km' ? currentDoc.titleKh : currentDoc.titleEn;
   const description = currentLang === 'km' ? currentDoc.descriptionKh : currentDoc.descriptionEn;
   const plainDescription = stripHtmlTags(description);
+  // Get remaining documents for grid (excluding current slide)
+  const gridDocuments = documents.filter((_, idx) => idx !== currentSlide).slice(0, 4);
 
   const handlePrevSlide = (e) => {
     e.stopPropagation();
@@ -116,9 +119,9 @@ const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayN
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Section Header - Consistent style with News */}
+      {/* Section Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+        <div className="flex items-center border-b border-gray-200 pb-4">
           <div>
             <div className="flex items-center space-x-2 mb-2">
               <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></div>
@@ -132,14 +135,12 @@ const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayN
             <p className="text-gray-500 text-xs md:text-sm mt-1">
               {t.subtitle}
             </p>
-            <br />
           </div>
         </div>
       </div>
 
-      {/* Slideshow Container - Taller height */}
+      {/* Slideshow Container */}
       <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden shadow-2xl group">
-        {/* Slide Image */}
         <div 
           className="relative h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden cursor-pointer"
           onClick={() => handleViewDetails(currentDoc)}
@@ -185,7 +186,7 @@ const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayN
             )}
           </div>
 
-          {/* Content Overlay - Centered better */}
+          {/* Content Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white z-10">
             <div className="flex items-center text-xs text-white/70 mb-2">
               <Calendar size={12} className="mr-1" />
@@ -297,6 +298,86 @@ const LegalSlideshow = ({ documents, loading, t, formatDate, getCategoryDisplayN
           </div>
         )}
       </div>
+
+      {/* 4-Column Grid Below Slideshow */}
+      {gridDocuments.length > 0 && (
+        <div className="mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-">
+            {gridDocuments.map((doc) => {
+              const gridTitle = currentLang === 'km' ? doc.titleKh : doc.titleEn;
+              const gridDescription = currentLang === 'km' ? doc.descriptionKh : doc.descriptionEn;
+              const plainGridDescription = stripHtmlTags(gridDescription);
+              const btnConfig = getDownloadButtonConfig(doc);
+              
+              return (
+                <div
+                  key={doc.id}
+                  className="group bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
+                  onClick={() => handleViewDetails(doc)}
+                >
+                  {/* Thumbnail */}
+                  <div className="relative h-32 overflow-hidden bg-gray-100">
+                    <img
+                      src={doc.coverImage}
+                      alt={gridTitle}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-2 left-2">
+                      <span className={`inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium border ${getCategoryColor(doc.category)} bg-white/90`}>
+                        {getCategoryIcon(doc.category)}
+                        <span className="hidden sm:inline">{getCategoryDisplayName(doc.category)}</span>
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded-md text-[10px]">
+                      PDF
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-3">
+                    <div className="flex items-center text-[10px] text-gray-400 mb-1">
+                      <Calendar size={10} className="mr-1 flex-shrink-0" />
+                      <span className="truncate">{formatDate(doc.publishedDate)}</span>
+                    </div>
+                    <h4 className="text-xs font-semibold text-gray-800 mb-1 line-clamp-2 group-hover:text-green-600 transition-colors">
+                      {gridTitle}
+                    </h4>
+                    {plainGridDescription && (
+                      <p className="text-[10px] text-gray-500 mb-2 line-clamp-2">
+                        {plainGridDescription}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                      {btnConfig.show && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(doc, btnConfig.language);
+                          }}
+                          className="flex items-center space-x-1 text-[10px] text-green-600 hover:text-green-700 font-medium"
+                        >
+                          <Download size={10} />
+                          <span>{btnConfig.language === 'km' ? 'ទាញយក' : 'Download'}</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(doc);
+                        }}
+                        className="flex items-center space-x-1 text-[10px] text-green-600 hover:text-green-700 font-medium"
+                      >
+                        <span>{t.viewDetails}</span>
+                        <ChevronRight size={10} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* View More Button at Bottom */}
       <div className="mt-6 flex justify-center">

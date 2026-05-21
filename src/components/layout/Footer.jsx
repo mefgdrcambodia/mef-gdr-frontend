@@ -198,45 +198,84 @@ const Footer = () => {
 
   const t = translations[currentLang];
 
-  // Quick links based on Navigation menu structure with icons
-  const quickLinksList = [
-    { label: t.home, path: "/", icon: <Home size={14} /> },
+  // Navigation-based menu structure (mirroring Navigation.jsx)
+  const menuItems = [
+    { 
+      id: 'home',
+      label: 'ទំព័រដើម', 
+      labelEn: 'HOME',
+      path: '/',
+      icon: Home,
+      dropdown: false
+    },
+    { 
+      id: 'news',
+      label: 'ព័ត៌មាន', 
+      labelEn: 'NEWS',
+      path: '/news',
+      icon: Globe,
+      dropdown: false,
+      subItems: {
+        km: [
+          { label: 'ព័ត៌មាន', path: '/news', icon: FileText },
+          { label: 'កម្រងរូបភាព', path: '/news/photos', icon: Image },
+          { label: 'កម្រងវីដេអូ', path: '/news/videos', icon: Video },
+        ],
+        en: [
+          { label: 'News', path: '/news', icon: FileText },
+          { label: 'Photo Gallery', path: '/news/photos', icon: Image },
+          { label: 'Video Gallery', path: '/news/videos', icon: Video },
+        ]
+      }
+    },
+    { 
+      id: 'documents',
+      label: 'លិខិតបទដ្ឋានគតិយុត្ត', 
+      labelEn: 'Legal regulations',
+      path: '/legal',
+      icon: Library,
+      dropdown: true,
+      hasNested: true,
+      subItems: {
+        km: [
+          { label: 'ច្បាប់', path: '/legal?type=law', icon: Book },
+          { label: 'អនុក្រឹត្យ', path: '/legal?type=sub-decree', icon: FileText },
+          { label: 'សារាចរ', path: '/legal?type=circular', icon: FileSignature },
+          { label: 'ប្រកាស', path: '/legal?type=declaration', icon: Megaphone },
+          { 
+            label: 'ផ្សេងៗ', 
+            icon: FileText,
+            path: '/legal?type=other'
+          }
+        ],
+        en: [
+          { label: 'Law', path: '/legal?type=law', icon: Book },
+          { label: 'Sub-Decree', path: '/legal?type=sub-decree', icon: FileText },
+          { label: 'Circular', path: '/legal?type=circular', icon: FileSignature },
+          { label: 'Declaration', path: '/legal?type=declaration', icon: Megaphone },
+          { 
+            label: 'Others', 
+            icon: FileText,
+            path: '/legal?type=other'
+          }
+        ],
+      }
+    },
   ];
 
-  // About sub-links with icons
-  const aboutSubLinks = [
-    { label: t.management, path: "/about/management", icon: <Building size={12} /> },
-    { label: t.roles, path: "/about/roles", icon: <Briefcase size={12} /> },
-    { label: t.directorMessage, path: "/about/director-message", icon: <MessageCircle size={12} /> },
-    { label: t.speech, path: "/about/speech", icon: <Mic size={12} /> },
-  ];
+  const getTranslatedLabel = (item) => {
+    if (currentLang === 'km') {
+      return item.label;
+    }
+    return item.labelEn;
+  };
 
-  // News sub-links with icons
-  const newsSubLinks = [
-    { label: t.newsMain, path: "/news", icon: <Newspaper size={12} /> },
-    { label: t.photos, path: "/news/photos", icon: <Camera size={12} /> },
-    { label: t.videos, path: "/news/videos", icon: <PlayCircle size={12} /> },
-  ];
-
-  // Legal Documents nested items with icons
-  const legalNestedItems = [
-    { label: t.law, path: "/legal/law", icon: <Gavel size={12} /> },
-    { label: t.subDecree, path: "/legal/sub-decree", icon: <FileText size={12} /> },
-    { label: t.circular, path: "/legal/circular", icon: <FileSignature size={12} /> },
-    { label: t.declaration, path: "/legal/declaration", icon: <Megaphone size={12} /> },
-  ];
-
-  // Reports sub-links with icons
-  const reportsSubLinks = [
-    { label: t.ssmr, path: "/reports?type=ssmr", icon: <CheckSquare size={12} /> },
-    { label: t.drp, path: "/reports?type=drp", icon: <Scroll size={12} /> },
-  ];
-
-  const socialMediaList = [
-    { href: FACEBOOK_URL, icon: <FacebookIcon />, label: "Facebook", color: "hover:bg-[#1877F2]" },
-    { href: X_URL, icon: <XIcon />, label: "X (Twitter)", color: "hover:bg-[#000000]" },
-    { href: TELEGRAM_URL, icon: <TelegramIcon />, label: "Telegram", color: "hover:bg-[#0088CC]" },
-  ];
+  const getTranslatedSubLabel = (subItem) => {
+    if (currentLang === 'km') {
+      return subItem.label;
+    }
+    return subItem.labelEn || subItem.label;
+  };
 
   if (loading) {
     return (
@@ -368,169 +407,78 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links Column with Dropdowns */}
+          {/* Quick Links Column based on Navigation */}
           <div className="space-y-4">
             <h4 className="font-semibold text-white flex items-center text-base sm:text-lg">
               <span className="w-8 h-0.5 bg-[#4CAF50] mr-2"></span>
               {t.quickLinks}
             </h4>
 
-            {/* Main Quick Links */}
             <ul className="space-y-2">
-              {quickLinksList.map((link, index) => (
-                <li key={index}>
-                  <Link to={link.path} className="group flex items-center text-sm text-green-200 hover:text-white transition-colors">
-                    {/* <ChevronRight size={14} className="mr-2 text-[#4CAF50] group-hover:translate-x-1 transition-transform flex-shrink-0" /> */}
-                    <span className="mr-2">{link.icon}</span>
-                    <span className="break-words">{link.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            {/* About Dropdown Section */}
-            <div className="mt-4">
-              <button
-                onClick={() => toggleSection('about')}
-                className="w-full flex items-center justify-between text-sm text-green-200 hover:text-white transition-colors group py-1"
-              >
-                <div className="flex items-center">
-                  {/* <span className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full mr-2"></span> */}
-                  <Info size={12} className="mr-2 text-[#4CAF50]" />
-                  <span className="font-medium">{t.about}</span>
-                </div>
-                <ChevronDown 
-                  size={14} 
-                  className={`transition-transform duration-200 ${openSections.about ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.about ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                <ul className="space-y-2 pl-4 border-l-2 border-[#4CAF50]/30">
-                  {aboutSubLinks.map((link, index) => (
+              {menuItems.map((item, index) => {
+                if (!item.dropdown) {
+                  // Direct link items (Home, News)
+                  return (
                     <li key={index}>
-                      <Link to={link.path} className="group flex items-center text-xs text-green-300 hover:text-white transition-colors">
-                        {/* <span className="mr-2 text-[#4CAF50] group-hover:translate-x-0.5 transition-transform">•</span> */}
-                        <span className="mr-2">{link.icon}</span>
-                        <span className="break-words">{link.label}</span>
+                      <Link to={item.path} className="group flex items-center text-sm text-green-200 hover:text-white transition-colors py-1">
+                        <item.icon size={14} className="mr-2 text-[#4CAF50] group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                        <span className="break-words">{getTranslatedLabel(item)}</span>
                       </Link>
                     </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* News Dropdown Section */}
-            <div>
-              <button
-                onClick={() => toggleSection('news')}
-                className="w-full flex items-center justify-between text-sm text-green-200 hover:text-white transition-colors group py-1"
-              >
-                <div className="flex items-center">
-                  {/* <span className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full mr-2"></span> */}
-                  <Newspaper size={12} className="mr-2 text-[#4CAF50]" />
-                  <span className="font-medium">{t.news}</span>
-                </div>
-                <ChevronDown 
-                  size={14} 
-                  className={`transition-transform duration-200 ${openSections.news ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.news ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                <ul className="space-y-2 pl-4 border-l-2 border-[#4CAF50]/30">
-                  {newsSubLinks.map((link, index) => (
-                    <li key={index}>
-                      <Link to={link.path} className="group flex items-center text-xs text-green-300 hover:text-white transition-colors">
-                        {/* <span className="mr-2 text-[#4CAF50] group-hover:translate-x-0.5 transition-transform">•</span> */}
-                        <span className="mr-2">{link.icon}</span>
-                        <span className="break-words">{link.label}</span>
+                  );
+                } else if (item.id === 'documents') {
+                  // Legal Documents section with nested items
+                  return (
+                    <div key={index} className="space-y-1">
+                      <Link 
+                        to={item.path} 
+                        className="group flex items-center text-sm text-green-200 hover:text-white transition-colors py-1"
+                      >
+                        <item.icon size={14} className="mr-2 text-[#4CAF50] group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                        <span className="break-words font-medium">{getTranslatedLabel(item)}</span>
                       </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Documents Dropdown Section with Nested Legal Documents */}
-            <div>
-              <button
-                onClick={() => toggleSection('documents')}
-                className="w-full flex items-center justify-between text-sm text-green-200 hover:text-white transition-colors group py-1"
-              >
-                <div className="flex items-center">
-                  {/* <span className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full mr-2"></span> */}
-                  <FolderTree size={12} className="mr-2 text-[#4CAF50]" />
-                  <span className="font-medium">{t.documents}</span>
-                </div>
-                <ChevronDown 
-                  size={14} 
-                  className={`transition-transform duration-200 ${openSections.documents ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.documents ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                <div className="pl-4">
-                  {/* Legal Documents - Nested Dropdown */}
-                  <div>
-                    <button
-                      onClick={() => toggleSection('legalDocuments')}
-                      className="w-full flex items-center justify-between text-xs text-green-300 hover:text-white transition-colors group py-1.5"
-                    >
-                      <div className="flex items-center">
-                        <Scale size={12} className="mr-2 text-[#4CAF50]" />
-                        <span>{t.legalDocuments}</span>
-                      </div>
-                      <ChevronDown 
-                        size={12} 
-                        className={`transition-transform duration-200 ${openSections.legalDocuments ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.legalDocuments ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
-                      <ul className="space-y-1.5 pl-6 border-l-2 border-[#4CAF50]/20">
-                        {legalNestedItems.map((link, index) => (
-                          <li key={index}>
-                            <Link to={link.path} className="group flex items-center text-[11px] text-green-400 hover:text-white transition-colors">
-                              <span className="mr-1.5 text-[#4CAF50] group-hover:translate-x-0.5 transition-transform">•</span>
-                              <span className="mr-1.5">{link.icon}</span>
-                              <span className="break-words">{link.label}</span>
+                      <div className="pl-6 space-y-1">
+                        {item.subItems[currentLang].map((subItem, subIndex) => {
+                          if (subItem.hasNested) {
+                            return (
+                              <div key={subIndex} className="space-y-1">
+                                <div className="flex items-center text-xs text-green-300 py-0.5">
+                                  <subItem.icon size={12} className="mr-1.5 text-[#4CAF50]" />
+                                  <span>{getTranslatedSubLabel(subItem)}</span>
+                                </div>
+                                <div className="pl-4 space-y-1">
+                                  {subItem.nestedItems.map((nested, nestedIndex) => (
+                                    <Link
+                                      key={nestedIndex}
+                                      to={nested.path}
+                                      className="group flex items-center text-xs text-green-400 hover:text-white transition-colors py-0.5"
+                                    >
+                                      <ChevronRight size={10} className="mr-1.5 text-[#4CAF50]/70 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                                      <span className="break-words">{nested.label}</span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={subIndex}
+                              to={subItem.path}
+                              className="group flex items-center text-xs text-green-400 hover:text-white transition-colors py-0.5"
+                            >
+                              <ChevronRight size={10} className="mr-1.5 text-[#4CAF50]/70 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                              <span className="break-words">{getTranslatedSubLabel(subItem)}</span>
                             </Link>
-                          </li>
-                        ))}
-                      </ul>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Reports Dropdown Section */}
-            <div>
-              <button
-                onClick={() => toggleSection('reports')}
-                className="w-full flex items-center justify-between text-sm text-green-200 hover:text-white transition-colors group py-1"
-              >
-                <div className="flex items-center">
-                  {/* <span className="w-1.5 h-1.5 bg-[#4CAF50] rounded-full mr-2"></span> */}
-                  <PieChart size={12} className="mr-2 text-[#4CAF50]" />
-                  <span className="font-medium">{t.reports}</span>
-                </div>
-                <ChevronDown 
-                  size={14} 
-                  className={`transition-transform duration-200 ${openSections.reports ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.reports ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                <ul className="space-y-2 pl-4 border-l-2 border-[#4CAF50]/30">
-                  {reportsSubLinks.map((link, index) => (
-                    <li key={index}>
-                      <Link to={link.path} className="group flex items-center text-xs text-green-300 hover:text-white transition-colors">
-                        {/* <span className="mr-2 text-[#4CAF50] group-hover:translate-x-0.5 transition-transform">•</span> */}
-                        <span className="mr-2">{link.icon}</span>
-                        <span className="break-words">{link.label}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  );
+                }
+                return null;
+              })}
+            </ul>
           </div>
 
           {/* Map Column */}
@@ -591,5 +539,12 @@ const Footer = () => {
     </footer>
   );
 };
+
+// Social media list (moved outside component to avoid reference error)
+const socialMediaList = [
+  { href: 'https://www.facebook.com', icon: <FacebookIcon />, label: "Facebook", color: "hover:bg-[#1877F2]" },
+  { href: 'https://www.x.com', icon: <XIcon />, label: "X (Twitter)", color: "hover:bg-[#000000]" },
+  { href: 'https://www.telegram.org', icon: <TelegramIcon />, label: "Telegram", color: "hover:bg-[#0088CC]" },
+];
 
 export default Footer;
