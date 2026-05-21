@@ -22,8 +22,13 @@ const HomePage = () => {
       <HeroSection />
 
       <Container className="py-12">
-        <NewsSection />
-        <LegalSection />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 auto-rows-fr">
+          {/* Left side - Legal Section with Slideshow */}
+          <LegalSection layout="slideshow" />
+          
+          {/* Right side - News Section (list only) */}
+          <NewsSection layout="list-only" />
+        </div>
       </Container>
     </>
   );

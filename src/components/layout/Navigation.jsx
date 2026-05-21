@@ -52,35 +52,35 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
       icon: Home,
       dropdown: false
     },
-    { 
-      id: 'about',
-      label: 'អំពីអគ្គនាយកដ្ឋាន', 
-      labelEn: 'ABOUT GENERAL DEPARTMENT',
-      path: '/about',
-      icon: Info,
-      dropdown: true,
-      subItems: {
-        km: [
-          { label: 'រចនាសម្ព័ន្ធនៃការគ្រប់គ្រង', path: '/about/management', icon: Building },
-          { label: 'តួនាទី និងភារកិច្ច', path: '/about/roles', icon: Briefcase },
-          { label: 'សារអគ្គនាយក', path: '/about/director-message', icon: MessageCircle },
-          { label: 'សុន្ទរកថា', path: '/about/speech', icon: Mic }
-        ],
-        en: [
-          { label: 'Management Structure', path: '/about/management', icon: Building },
-          { label: 'Roles & Responsibilities', path: '/about/roles', icon: Briefcase },
-          { label: "Director's Message", path: '/about/director-message', icon: MessageCircle },
-          { label: 'Speech', path: '/about/speech', icon: Mic }
-        ]
-      }
-    },
+    // { 
+    //   id: 'about',
+    //   label: 'អំពីអគ្គនាយកដ្ឋាន', 
+    //   labelEn: 'ABOUT GENERAL DEPARTMENT',
+    //   path: '/about',
+    //   icon: Info,
+    //   dropdown: true,
+    //   subItems: {
+    //     km: [
+    //       { label: 'រចនាសម្ព័ន្ធនៃការគ្រប់គ្រង', path: '/about/management', icon: Building },
+    //       { label: 'តួនាទី និងភារកិច្ច', path: '/about/roles', icon: Briefcase },
+    //       { label: 'សារអគ្គនាយក', path: '/about/director-message', icon: MessageCircle },
+    //       { label: 'សុន្ទរកថា', path: '/about/speech', icon: Mic }
+    //     ],
+    //     en: [
+    //       { label: 'Management Structure', path: '/about/management', icon: Building },
+    //       { label: 'Roles & Responsibilities', path: '/about/roles', icon: Briefcase },
+    //       { label: "Director's Message", path: '/about/director-message', icon: MessageCircle },
+    //       { label: 'Speech', path: '/about/speech', icon: Mic }
+    //     ]
+    //   }
+    // },
     { 
       id: 'news',
-      label: 'ព័ត៌មាន និង ព្រឹត្តិការណ៍', 
-      labelEn: 'NEWS & EVENTS',
+      label: 'ព័ត៌មាន', 
+      labelEn: 'NEWS',
       path: '/news',
       icon: Globe,
-      dropdown: true,
+      dropdown: false,
       subItems: {
         km: [
           { label: 'ព័ត៌មាន', path: '/news', icon: FileText },
@@ -98,8 +98,8 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
     { 
       id: 'documents',
-      label: 'បណ្តុំឯកសារ', 
-      labelEn: 'DOCUMENT COLLECTION',
+      label: 'លិខិតបទដ្ឋានគតិយុត្ត', 
+      labelEn: 'Legal regulations',
       path: '/legal',
       icon: Library,
       dropdown: true,
@@ -145,24 +145,24 @@ const Navigation = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         ],
       }
     },
-    { 
-      id: 'reports',
-      label: 'របាយការណ៍', 
-      labelEn: 'REPORTS',
-      path: '/reports',
-      icon: BarChart3,
-      dropdown: true,
-      subItems: {
-        km: [
-          { label: 'របាយការណ៍ SSMR', path: '/reports?type=ssmr', icon: FileCheck },
-          { label: 'របាយការណ៍ DRP', path: '/reports?type=drp', icon: ScrollText },
-        ],
-        en: [
-          { label: 'SSMR Report', path: '/reports?type=ssmr', icon: FileCheck },
-          { label: 'DRP Report', path: '/reports?type=drp', icon: ScrollText },
-        ]
-      }
-    },
+    // { 
+    //   id: 'reports',
+    //   label: 'របាយការណ៍', 
+    //   labelEn: 'REPORTS',
+    //   path: '/reports',
+    //   icon: BarChart3,
+    //   dropdown: true,
+    //   subItems: {
+    //     km: [
+    //       { label: 'របាយការណ៍ SSMR', path: '/reports?type=ssmr', icon: FileCheck },
+    //       { label: 'របាយការណ៍ DRP', path: '/reports?type=drp', icon: ScrollText },
+    //     ],
+    //     en: [
+    //       { label: 'SSMR Report', path: '/reports?type=ssmr', icon: FileCheck },
+    //       { label: 'DRP Report', path: '/reports?type=drp', icon: ScrollText },
+    //     ]
+    //   }
+    // },
   ];
 
   // Handle click outside to close dropdowns
