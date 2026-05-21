@@ -1,17 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.125951ac.css",
-    "main.js": "/static/js/main.69f2f485.js",
+    "main.css": "/static/css/main.dec4d138.css",
+    "main.js": "/static/js/main.50093e79.js",
     "static/media/director.jpg": "/static/media/director.372e5213a627922ed76e.jpg",
     "static/media/logo.png": "/static/media/logo.ee17fa46412eaeeabb91.png",
     "static/media/logo_white.png": "/static/media/logo_white.611a0d7043c9abb12b37.png",
-    "static/media/defuat_img.jpg": "/static/media/defuat_img.2bb2bc3308011624f086.jpg",
     "static/media/Banner-1.jpg": "/static/media/Banner-1.cf5c402c5a992ca186da.jpg",
-    "static/media/Lor.jpg": "/static/media/Lor.940419ebdbf803e688e8.jpg",
     "index.html": "/index.html"
   },
   "entrypoints": [
-    "static/css/main.125951ac.css",
-    "static/js/main.69f2f485.js"
+    "static/css/main.dec4d138.css",
+    "static/js/main.50093e79.js"
   ]
 }

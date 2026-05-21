@@ -9,13 +9,12 @@ class WebsiteBannerService {
   async getWebsiteBanners() {
     const response = await apiService.get(envConfig.endpoints.websiteBanner.get);
     
-    console.log('Website Banner API Response:', response);
-    
+   
     if (response.success && response.data) {
       // The actual data is in response.data.data
       const actualData = response.data.data || response.data;
       
-      console.log('Website Banner actualData:', actualData);
+     
       
       return {
         success: true,

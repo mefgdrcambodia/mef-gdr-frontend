@@ -10,7 +10,7 @@ class FooterService {
   async getFooterConfig() {
     const response = await apiService.get(envConfig.endpoints.sections.footer);
     
-    console.log('Footer API Raw Response:', response);
+    
     
     // The API service returns { success: true, data: { success: true, data: {...} } }
     // We need to access the inner data
@@ -18,7 +18,7 @@ class FooterService {
       // The actual footer data is in response.data.data
       const actualData = response.data.data || response.data;
       
-      console.log('Actual footer data:', actualData);
+      
       
       return {
         success: true,
@@ -39,7 +39,7 @@ class FooterService {
   transformData(data) {
     if (!data) return null;
 
-    console.log('Footer transformData input:', data);
+    
 
     const transformed = {
       id: data._id || null,
@@ -56,7 +56,7 @@ class FooterService {
       status: data.status ?? false,
     };
 
-    console.log('Footer transformData output:', transformed);
+    
 
     return transformed;
   }

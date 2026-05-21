@@ -29,7 +29,7 @@ export const useFooterEmail = () => {
           setEmail('');
         }
       } catch (error) {
-        console.error('Error fetching footer email:', error);
+       
         setEmail('');
       } finally {
         setLoading(false);

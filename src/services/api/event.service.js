@@ -10,7 +10,7 @@ class EventService {
   async getRoleAndResponsibility() {
     const response = await apiService.get(envConfig.endpoints.events.roleAndResponsibility);
     
-    console.log('Role API Raw Response:', response);
+    
     
     if (response.success && response.data) {
       // The actual data is in response.data.data
@@ -35,7 +35,7 @@ class EventService {
   async getMessage() {
     const response = await apiService.get(envConfig.endpoints.events.message);
     
-    console.log('Message API Raw Response:', response);
+    
     
     if (response.success && response.data) {
       // The actual data is in response.data.data
@@ -60,7 +60,7 @@ class EventService {
   transformRoleData(data) {
     if (!data) return this.getFallbackRoleData();
 
-    console.log('Role transformData input:', data);
+    
 
     return {
       id: data._id || null,
@@ -90,7 +90,7 @@ class EventService {
   transformMessageData(data) {
     if (!data) return this.getFallbackMessageData();
 
-    console.log('Message transformData input:', data);
+    
 
     return {
       id: data._id || null,

@@ -23,15 +23,15 @@ class ApiService {
         },
       });
 
-      // ✅ Always return full body so callers can access data[], pagination{}, category[]
+     
       return {
         success: true,
-        data: response.data,        // full body: { success, data[], pagination{}, category[] }
+        data: response.data,        
         status: response.status,
         message: response.data?.message || 'Success',
       };
     } catch (error) {
-      console.error(`API Error [${url}]:`, error.message);
+      
       return {
         success: false,
         data: null,
@@ -51,7 +51,7 @@ class ApiService {
         message: response.data?.message || 'Success',
       };
     } catch (error) {
-      console.error(`API Error [${url}]:`, error.message);
+      
       return {
         success: false,
         data: null,
@@ -71,7 +71,7 @@ class ApiService {
         message: response.data?.message || 'Success',
       };
     } catch (error) {
-      console.error(`API Error [${url}]:`, error.message);
+      
       return {
         success: false,
         data: null,
@@ -91,7 +91,7 @@ class ApiService {
         message: response.data?.message || 'Success',
       };
     } catch (error) {
-      console.error(`API Error [${url}]:`, error.message);
+      
       return {
         success: false,
         data: null,

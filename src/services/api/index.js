@@ -12,3 +12,4 @@ export { default as videoAlbumService } from './videoAlbum.service';
 export { default as photoAlbumService } from './photoAlbum.service';
 export { default as speechService } from './speech.service';
 export { default as websiteBannerService } from './websiteBanner.service';
+export { default as department} from './department.service'

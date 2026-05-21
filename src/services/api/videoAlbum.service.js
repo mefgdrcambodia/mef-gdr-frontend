@@ -12,7 +12,7 @@ class VideoAlbumService {
 
     const response = await apiService.get(envConfig.endpoints.videoAlbum.getAll, params);
     
-    console.log('Video Album API Response:', response);
+    
     
     if (response.success && response.data) {
       const body = response.data;

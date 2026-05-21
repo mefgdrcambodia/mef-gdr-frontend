@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLegalDocuments } from '../../hooks/useLegal';
-import defaultThumbnail from '../../images/pdf/thumbnails/Lor.jpg';
+
 
 const LegalSection = () => {
   const [currentLang, setCurrentLang] = useState('km');
@@ -357,7 +357,7 @@ const LegalSection = () => {
 
   // Get thumbnail - use cover_image from API
   const getThumbnail = (doc) => {
-    return doc.coverImage || defaultThumbnail;
+    return doc.coverImage;
   };
 
   // Loading state
@@ -469,7 +469,7 @@ const LegalSection = () => {
                           src={thumbnail}
                           alt={title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) => { e.target.src = defaultThumbnail; }}
+                          
                         />
                         <div className="absolute top-2 right-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-1.5 py-0.5 rounded-md text-[10px] font-medium shadow-lg">
                           PDF
@@ -628,7 +628,7 @@ const LegalSection = () => {
                       src={getThumbnail(selectedDoc)}
                       alt={currentLang === 'km' ? selectedDoc.titleKh : selectedDoc.titleEn}
                       className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = defaultThumbnail; }}
+                      
                     />
                     <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-[#4CAF50] text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium">
                       PDF

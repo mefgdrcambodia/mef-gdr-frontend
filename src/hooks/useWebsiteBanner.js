@@ -14,17 +14,17 @@ const useWebsiteBanner = () => {
       
       const response = await websiteBannerService.getWebsiteBanners();
       
-      console.log('useWebsiteBanner response:', response);
+     
       
       if (response.success && response.data) {
         setData(response.data);
-        console.log('useWebsiteBanner data set:', response.data);
+        
       } else {
         setData(null);
         setError(response.error || 'Failed to fetch website banners');
       }
     } catch (err) {
-      console.error('Error fetching website banners:', err);
+     
       setData(null);
       setError(err.message);
     } finally {

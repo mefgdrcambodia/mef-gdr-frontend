@@ -102,7 +102,7 @@ const NewsVideos = () => {
         thumbnail: video.thumbnail,
         date: formattedDate,
         timestamp: video.createdDate ? new Date(video.createdDate).getTime() : Date.now(),
-        duration: "05:30", // Default duration, can be calculated
+        duration: "05:30", 
         category: videoAlbumService.getCategory(currentLang),
         views: videoViews[video.id] || 0,
         likes: videoLikes[video.id] || 0,

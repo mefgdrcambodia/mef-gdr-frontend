@@ -14,17 +14,16 @@ const useManagementStructure = () => {
       
       const response = await managementStructureService.getManagementStructure();
       
-      console.log('useManagementStructure response:', response);
-      
+     
       if (response.success && response.data) {
         setData(response.data);
-        console.log('useManagementStructure data set:', response.data);
+       
       } else {
         setData(null);
         setError(response.error || 'Failed to fetch management structure data');
       }
     } catch (err) {
-      console.error('Error fetching management structure data:', err);
+     
       setData(null);
       setError(err.message);
     } finally {

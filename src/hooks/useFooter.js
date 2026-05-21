@@ -13,9 +13,7 @@ export const useFooter = (language = 'km') => {
       setError(null);
       
       const response = await footerService.getFooterConfig();
-      
-      console.log('useFooter response:', response);
-      
+        
       if (response.success && response.data) {
         setData(response.data);
       } else {
@@ -23,7 +21,7 @@ export const useFooter = (language = 'km') => {
         setError(response.error || 'Failed to fetch footer data');
       }
     } catch (err) {
-      console.error('useFooter error:', err);
+      
       setData(null);
       setError(err.message);
     } finally {
@@ -62,7 +60,7 @@ export const useFooter = (language = 'km') => {
   // Extract map URL
   const mapUrl = data?.urlMef || '';
 
-  console.log('useFooter return values:', { contact, address, copyright, email, mapUrl });
+  
 
   return {
     loading,

@@ -12,7 +12,7 @@ class SpeechService {
 
     const response = await apiService.get(envConfig.endpoints.speech.getAll, params);
     
-    console.log('Speech API Response:', response);
+    
     
     if (response.success && response.data) {
       const body = response.data;

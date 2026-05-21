@@ -1,32 +1,26 @@
 // src/pages/RolesResponsibilitiesPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Building2,
   Users,
   Target,
   X,
-  FileText,
-  Calendar,
   ChevronRight,
   Briefcase,
   Scale,
   Laptop,
-  Wallet,
-  UserCheck,
-  BookOpen,
-  Database,
-  Globe,
-  Link2,
-  Home,
   Landmark,
-  AlertCircle,
+  Link2,
+  Globe,
+  UserCheck,
+  Database,
   MessageCircle,
-  TrendingUp,
 } from "lucide-react";
 import Container from "../components/ui/Container.jsx";
 import GlobalBanner from "../components/ui/GlobalBanner.jsx";
 import RunningText from "../components/ui/RunningText";
 import { useRoleAndResponsibility } from "../hooks/useEvent";
+import { useDepartmentDetail } from "../hooks/useDepartmentDetail";
 
 const RolesResponsibilitiesPage = () => {
   const [currentLang, setCurrentLang] = useState(() => {
@@ -36,7 +30,19 @@ const RolesResponsibilitiesPage = () => {
   const [showModal, setShowModal] = useState(false);
 
   // Fetch role and responsibility data from API
-  const { loading, data, error } = useRoleAndResponsibility();
+  const { loading: roleLoading, data, error: roleError } = useRoleAndResponsibility();
+  
+  // Fetch all departments from API
+  const { 
+    departments, 
+    loading: deptLoading, 
+    error: deptError,
+    getDepartment 
+  } = useDepartmentDetail({ 
+    autoFetch: true, 
+    fetchAll: true,
+    parallel: true 
+  });
 
   useEffect(() => {
     const handleLanguageChange = (e) => {
@@ -59,9 +65,19 @@ const RolesResponsibilitiesPage = () => {
     };
   }, [showModal]);
 
+  const loading = roleLoading || deptLoading;
+
+  // Helper function to strip HTML tags
+  const stripHtmlTags = (html) => {
+    if (!html) return '';
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+  };
+
   // Get dynamic content based on language
   const getTitle = () => {
-    if (loading || !data) {
+    if (roleLoading || !data) {
       return currentLang === "km"
         ? "តួនាទី និងការទទួលខុសត្រូវ"
         : "Roles & Responsibilities";
@@ -70,27 +86,126 @@ const RolesResponsibilitiesPage = () => {
   };
 
   const getMissionTitle = () => {
-    if (loading || !data) {
+    if (roleLoading || !data) {
       return currentLang === "km"
         ? "អគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ បំពេញមុខងារជាសេនាធិការឱ្យក្រសួងសេដ្ឋកិច្ចនិងហិរញ្ញវត្ថុ លើការងារដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍នានា ដោយមានបេសកកម្មដូចខាងក្រោម៖"
-        : "Mission statement...";
+        : "The General Department of Resettlement serves as the chief of staff to the Ministry of Economy and Finance on impact resolution work from various development projects with the following mission:";
     }
     return currentLang === "km" ? data.titleKh : data.titleEn;
   };
 
   const getArticle = () => {
-    if (loading || !data) return "";
+    if (roleLoading || !data) return "";
     return currentLang === "km" ? data.articleKh : data.articleEn;
   };
 
-  const getDepartments = () => {
-    if (loading || !data) return [];
-    return data.departments || [];
+  // Manual leadership data
+  const getLeadershipList = () => {
+    return [
+      {
+        id: 1,
+        roleKh: "អគ្គនាយក",
+        roleEn: "Director General",
+        nameKh: "",
+        nameEn: "",
+      },
+      {
+        id: 2,
+        roleKh: "អគ្គនាយករង",
+        roleEn: "Deputy Director General",
+        nameKh: "",
+        nameEn: "",
+      },
+      {
+        id: 3,
+        roleKh: "ប្រធាននាយកដ្ឋាន",
+        roleEn: "Department Director",
+        nameKh: "",
+        nameEn: "",
+      },
+    ];
   };
 
-  const getLeadership = () => {
-    if (loading || !data) return [];
-    return data.leadership || [];
+  // Transform offices data for the UI - using ONLY real data from database
+  const getTransformedOffices = (department, lang) => {
+    const offices = [];
+    
+    // Helper to get office duties
+    const getOfficeDuties = (office) => {
+      if (!office || !office.jobToDo) return [];
+      return office.jobToDo.map(job => lang === "km" ? job.kh : job.en);
+    };
+    
+    // Office One - Only if exists and has data
+    if (department.officeOne && department.officeOne.jobToDo && department.officeOne.jobToDo.length > 0) {
+      const officeTitle = lang === "km" ? department.officeOne.titleKh : department.officeOne.titleEn;
+      
+      // Only add if title exists
+      if (officeTitle) {
+        offices.push({
+          name: stripHtmlTags(officeTitle),
+          duties: getOfficeDuties(department.officeOne),
+        });
+      }
+    }
+    
+    // Office Two - Only if exists and has data
+    if (department.officeTwo && department.officeTwo.jobToDo && department.officeTwo.jobToDo.length > 0) {
+      const officeTitle = lang === "km" ? department.officeTwo.titleKh : department.officeTwo.titleEn;
+      
+      // Only add if title exists
+      if (officeTitle) {
+        offices.push({
+          name: stripHtmlTags(officeTitle),
+          duties: getOfficeDuties(department.officeTwo),
+        });
+      }
+    }
+    
+    // Office Three - Only if exists and has data
+    if (department.officeThree && department.officeThree.jobToDo && department.officeThree.jobToDo.length > 0) {
+      const officeTitle = lang === "km" ? department.officeThree.titleKh : department.officeThree.titleEn;
+      
+      // Only add if title exists
+      if (officeTitle) {
+        offices.push({
+          name: stripHtmlTags(officeTitle),
+          duties: getOfficeDuties(department.officeThree),
+        });
+      }
+    }
+    
+    return offices;
+  };
+
+  // Transform API departments to match the expected format for the UI
+  const getDepartmentList = () => {
+    if (deptLoading || !departments) return [];
+    
+    const orderedTypes = [
+      'general',
+      'resettlement-one', 
+      'resettlement-two', 
+      'resettlement-three', 
+      'manage-data'
+    ];
+    
+    return orderedTypes
+      .filter(type => departments[type])
+      .map(type => {
+        const dept = departments[type];
+        return {
+          id: dept.id,
+          type: type,
+          name: currentLang === "km" ? dept.name?.kh : dept.name?.en,
+          title: currentLang === "km" ? dept.titleKh : dept.titleEn,
+          description: stripHtmlTags(currentLang === "km" ? dept.descriptionKh : dept.descriptionEn),
+          responsibilities: dept.jobToDo?.map(job => 
+            currentLang === "km" ? job.kh : job.en
+          ) || [],
+          offices: getTransformedOffices(dept, currentLang),
+        };
+      });
   };
 
   const translations = {
@@ -125,587 +240,8 @@ const RolesResponsibilitiesPage = () => {
   };
 
   const t = translations[currentLang];
-
-  // Department data with detailed information
-  const departmentList = [
-    {
-      id: 1,
-      name:
-        currentLang === "km"
-          ? "នាយកដ្ឋានកិច្ចការទូទៅ"
-          : "Department of General Affairs",
-      icon: <Building2 size={20} style={{ marginTop: "-10px" }} />,
-      description:
-        currentLang === "km"
-          ? "នាយកដ្ឋានកិច្ចការទូទៅ មានភារកិច្ចបំពេញមុខងារជាសេនាធិការឱ្យអគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ លើការងារគ្រប់គ្រងបុគ្គលិក រដ្ឋបាល ហិរញ្ញវត្ថុ ច្បាប់ និងផែនការ និងព័ត៌មានវិទ្យា។"
-          : "The Department of General Affairs is responsible for serving as the chief of staff to the General Department of Resettlement on personnel management, administration, finance, law and planning, and information technology.",
-      responsibilities:
-        currentLang === "km"
-          ? [
-              "ជាលេខាធិការដ្ឋានរបស់អគ្គនាយកដ្ឋាន",
-              "ជាច្រកចេញ-ចូលតែមួយសម្រាប់រាល់ឯកសារពាក់ព័ន្ធនឹងការងាររបស់អគ្គនាយកដ្ឋាន",
-              "ជាកន្លែងតម្កល់ឯកសារ និងលិខិតស្នាមផ្សេងៗរបស់អគ្គនាយកដ្ឋាន",
-              "រៀបចំចងក្រង និងតម្កល់ឯកសារច្បាប់ និងលិខិតបទដ្ឋានគតិយុត្តនានា",
-              "ចាត់ចែងការងារពិធីការ សម្របសម្រួល និងរៀបចំកិច្ចប្រជុំរបស់អគ្គនាយកដ្ឋាន",
-              "សម្របសម្រួល និងបូកសរុបរបាយការណ៍វឌ្ឍនភាពប្រចាំខែ ត្រីមាស ឆមាស និងប្រចាំឆ្នាំ",
-              "គ្រប់គ្រងសន្និធិសម្ភារៈ និងបញ្ជីសារពើភ័ណ្ឌទ្រព្យសម្បត្តិ",
-              "រៀបចំ សម្របសម្រួល បូកសរុប និងលើកគម្រោងថវិកាប្រចាំឆ្នាំ",
-              "សហការជាមួយនាយកដ្ឋាននានា រៀបចំកញ្ចប់គម្រោងថវិកាប៉ាន់ស្មាន",
-              "តាមដានជាប្រចាំនូវចរន្ត និងសមតុល្យនៃប្រតិបត្តិការសាច់ប្រាក់របស់គម្រោង",
-              "បំពេញតួនាទីជាអង្គភាពថវិការបស់អគ្គនាយកដ្ឋាន",
-              "រៀបចំ និងថែរក្សាកិច្ចបញ្ជីកាគណនេយ្យ និងរបាយការណ៍ហិរញ្ញវត្ថុ",
-              "រៀបចំនីតិវិធីលទ្ធកម្មជ្រើសរើសក្រុមហ៊ុនផ្តល់សេវា",
-              "សហការជាមួយភ្នាក់ងារ ឬអង្គភាពសវនកម្ម និងអធិការកិច្ច",
-              "គ្រប់គ្រងមន្ត្រីរាជការ និងមន្ត្រីជាប់កិច្ចសន្យា",
-              "រៀបចំ គ្រប់គ្រង និងថែរក្សាបញ្ជីវត្តមាន",
-              "សម្របសម្រួល និងរៀបចំកម្មវិធីបណ្តុះបណ្តាល",
-              "រៀបចំសំណើសុំដំឡើងកម្មប្រាក់ និងការលើកទឹកចិត្ត",
-              "ផ្តល់សេវាគាំទ្រដល់ការពិនិត្យ និងផ្តល់យោបល់លើសេចក្តីព្រាងផែនការ",
-              "ផ្តល់ការគាំទ្រខាងបច្ចេកទេសព័ត៌មានវិទ្យា",
-              "រៀបចំ គ្រប់គ្រង និងថែរក្សាប្រព័ន្ធព័ត៌មានវិទ្យា",
-              "រៀបចំ គ្រប់គ្រង និងធ្វើបច្ចុប្បន្នភាពគេហទំព័ររបស់អគ្គនាយកដ្ឋាន",
-              "បំពេញភារកិច្ចផ្សេងទៀតតាមការកំណត់",
-            ]
-          : [
-              "Serve as the secretariat of the General Department",
-              "Act as a single entry/exit point for all documents related to the General Department's work",
-              "Serve as the archive for documents and correspondence of the General Department",
-              "Compile and archive legal documents and legal standards",
-              "Manage protocol work, coordinate and organize meetings of the General Department",
-              "Coordinate and summarize monthly, quarterly, semi-annual and annual progress reports",
-              "Manage material funds and asset inventory",
-              "Prepare, coordinate, summarize and propose annual budget",
-              "Cooperate with other departments to prepare estimated budget packages",
-              "Regularly monitor cash flow and balances of project cash operations",
-              "Serve as the budget unit of the General Department",
-              "Prepare and maintain accounting records and financial reports",
-              "Prepare procurement procedures for selecting service provider companies",
-              "Cooperate with audit and inspection agencies or units",
-              "Manage civil servants and contracted officials",
-              "Prepare, manage and maintain attendance records",
-              "Coordinate and organize various training programs",
-              "Prepare proposals for salary increases and incentives",
-              "Provide support services for reviewing and commenting on draft plans",
-              "Provide IT technical support",
-              "Prepare, manage and maintain IT systems and document sharing networks",
-              "Prepare, manage and update the General Department's website",
-              "Perform other duties as assigned",
-            ],
-      offices:
-        currentLang === "km"
-          ? [
-              {
-                name: "ការិយាល័យបុគ្គលិក រដ្ឋបាល និងហិរញ្ញវត្ថុ",
-                icon: <Briefcase size={16} />,
-                duties: [
-                  "ជាច្រកចេញចូលតែមួយសម្រាប់រាល់ឯកសារពាក់ព័ន្ធនឹងការងាររបស់អគ្គនាយកដ្ឋាន",
-                  "រៀបចំលិខិតស្នាមរដ្ឋបាល និងបោះពុម្ពឯកសារផ្សេងៗ",
-                  "ទទួលបន្ទុកការងារពិធីការរបស់អគ្គនាយកដ្ឋាន",
-                  "រៀបចំ និងសម្របសម្រួលកិច្ចប្រជុំផ្សេងៗ",
-                  "រៀបចំ និងបែងចែកសម្ភារៈប្រើប្រាស់ ឧបករណ៍ និងមធ្យោបាយផ្សេងៗ",
-                  "រៀបចំបញ្ជីវត្តមានរបស់មន្ត្រីរាជការ និងមន្ត្រីជាប់កិច្ចសន្យា",
-                  "រៀបចំសំណើសុំដំឡើងកាំប្រាក់ និងការលើកទឹកចិត្ត",
-                  "ទទួលបន្ទុកការងារគណនេយ្យរបស់អគ្គនាយកដ្ឋាន និងគម្រោងនីមួយៗ",
-                  "រៀបចំគម្រោងថវិកាប្រចាំឆ្នាំ និងគម្រោងថវិកាប៉ាន់ស្មាន",
-                  "រៀបចំរបាយការណ៍ប្រចាំខែស្តីពីស្ថានភាពថវិកា",
-                  "រៀបចំរបាយការណ៍នៃកិច្ចប្រជុំ",
-                  "រៀបចំនីតិវិធីលទ្ធកម្មជ្រើសរើសក្រុមហ៊ុន",
-                  "សហការជាមួយភ្នាក់ងារ ឬអង្គភាពសវនកម្ម និងអធិការកិច្ច",
-                  "រៀបចំបញ្ជីសន្និធិសម្ភារៈ និងបញ្ជីសារពើភ័ណ្ឌទ្រព្យសម្បត្តិ",
-                  "តម្កល់ឯកសារ និងលិខិតស្នាមរដ្ឋបាល",
-                ],
-              },
-              {
-                name: "ការិយាល័យផែនការ និងច្បាប់",
-                icon: <Scale size={16} />,
-                duties: [
-                  "រៀបចំចងក្រង និងតម្កល់ឯកសារច្បាប់ និងលិខិតបទដ្ឋានគតិយុត្ត",
-                  "ផ្តល់សេវាគាំទ្រដល់នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ១, ២ និងទី ៣",
-                  "ពិនិត្យសង្គតិភាព និងសុខដុមភាពនៃផែនការសកម្មភាព",
-                  "ពិនិត្យ និងផ្តល់យោបល់ផ្នែកច្បាប់លើសេចក្តីព្រាងកិច្ចព្រមព្រៀងហិរញ្ញប្បទាន",
-                  "ពិនិត្យ និងផ្តល់មតិប្រឹក្សាច្បាប់លើសេចក្តីព្រាងកិច្ចសន្យា",
-                  "ចូលរួមចរចាកិច្ចព្រមព្រៀងហិរញ្ញប្បទានជាមួយដៃគូអភិវឌ្ឍន៍",
-                  "សិក្សា និងរៀបចំទម្រង់បែបបទអង្កេតវាស់វែងលម្អិត",
-                  "រៀបចំរបាយការណ៍វឌ្ឍនភាពប្រចាំខែ ត្រីមាស ឆមាស ប្រចាំឆ្នាំ",
-                  "សិក្សា និងរៀបចំកម្មវិធីបណ្តុះបណ្តាលពង្រឹងសមត្ថភាព",
-                  "រៀបចំវគ្គបណ្តុះបណ្តាលពង្រឹងសមត្ថភាពរដ្ឋបាលថ្នាក់ក្រោមជាតិ",
-                ],
-              },
-              {
-                name: "ការិយាល័យព័ត៌មានវិទ្យា",
-                icon: <Laptop size={16} />,
-                duties: [
-                  "ផ្តល់សេវាគាំទ្រខាងផ្នែកបច្ចេកវិទ្យាព័ត៌មាន និងគមនាគមន៍",
-                  "រៀបចំបង្កើត អភិវឌ្ឍ គ្រប់គ្រង និងធ្វើបច្ចុប្បន្នភាពគេហទំព័រ",
-                  "រៀបចំដំឡើង និងគ្រប់គ្រងប្រព័ន្ធគ្រប់គ្រងព័ត៌មាន",
-                  "គ្រប់គ្រង ថែរក្សា និងធ្វើទំនើបកម្មកម្មវិធីកុំព្យូទ័រ",
-                ],
-              },
-            ]
-          : [
-              {
-                name: "Office of Personnel, Administration and Finance",
-                icon: <Briefcase size={16} />,
-                duties: [
-                  "Single entry/exit point for all documents related to the General Department's work",
-                  "Prepare administrative correspondence and print various documents",
-                  "Responsible for protocol work of the General Department",
-                  "Prepare and coordinate various meetings",
-                  "Prepare and distribute supplies, equipment and other means",
-                  "Prepare attendance records of civil servants and contracted officials",
-                  "Prepare proposals for salary increases and incentives",
-                  "Responsible for accounting work of the General Department and each project",
-                  "Prepare annual budget and estimated budget projects",
-                  "Prepare monthly reports on budget status",
-                  "Prepare meeting reports",
-                  "Prepare procurement procedures for selecting companies",
-                  "Cooperate with audit and inspection agencies or units",
-                  "Prepare material fund lists and asset inventory",
-                  "Archive administrative documents and correspondence",
-                ],
-              },
-              {
-                name: "Office of Planning and Law",
-                icon: <Scale size={16} />,
-                duties: [
-                  "Compile and archive legal documents and legal standards",
-                  "Provide support services to Impact Resolution Departments 1, 2 and 3",
-                  "Review consistency and harmony of action plans",
-                  "Review and provide legal comments on draft financing agreements",
-                  "Review and provide legal advice on draft contracts",
-                  "Participate in negotiating financing agreements with development partners",
-                  "Study and prepare detailed impact survey forms",
-                  "Prepare monthly, quarterly, semi-annual and annual progress reports",
-                  "Study and prepare capacity building training programs",
-                  "Organize training courses for sub-national administrations",
-                ],
-              },
-              {
-                name: "Office of Information Technology",
-                icon: <Laptop size={16} />,
-                duties: [
-                  "Provide IT and telecommunications support services",
-                  "Create, develop, manage and update the website",
-                  "Install and manage information management systems",
-                  "Manage, maintain and modernize computer programs",
-                ],
-              },
-            ],
-    },
-    {
-      id: 2,
-      name:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ១"
-          : "Impact Resolution Department 1",
-      icon: <Building2 size={20} style={{ marginTop: "-10px" }} />,
-      description:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ១, ទី ២ និង ទី ៣ បំពេញមុខងារជាសេនាធិការឱ្យអគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ លើការងារដោះស្រាយផលប៉ះពាល់ដល់ដីធ្លី សំណង់ផ្ទះសម្បែង សិទ្ធិ និងទ្រព្យសម្បត្តិផ្សេងៗដែលទទួលរងផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍នានា"
-          : "Impact Resolution Departments 1, 2 and 3 serve as the chief of staff to the General Department to resolve impacts from development projects on land, housing construction, rights and other properties affected by various development projects",
-      responsibilities:
-        currentLang === "km"
-          ? [
-              "គ្រប់គ្រងការអនុវត្តការងារដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក គម្រោងកិច្ចសហប្រតិបត្តិការទ្វេភាគី គម្រោងកិច្ចសហប្រតិបត្តិការពហុភាគី និងគម្រោងអភិវឌ្ឍន៍ឯកជនក្រោមក្របខណ្ឌភាពជាដៃគូរវាងរដ្ឋ និងឯកជន នៅតាមការកំណត់របស់អគ្គនាយកដ្ឋាន។",
-              "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធក្នុងការងារសិក្សាសមិទ្ធិលទ្ធភាពគម្រោង និងការងាររៀបចំគម្រោង ដែលផ្តល់ហិរញ្ញប្បទានដោយដៃគូអភិវឌ្ឍន៍ ដើម្បីវាយតម្លៃ និងកាត់បន្ថយផលប៉ះពាល់ផ្នែកសេដ្ឋកិច្ច-សង្គម សំដៅរួមចំណែកកាត់បន្ថយបន្ទុកចំណាយរបស់រាជរដ្ឋាភិបាលលើការងារដោះស្រាយផលប៉ះពាល់ បន្ថយបញ្ហាប្រឈមនានាឱ្យនៅកម្រិតអប្បរមាក្នុងដំណាក់កាលអនុវត្តគម្រោង",
-              "រៀបចំផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គមដោយសារគម្រោងអភិវឌ្ឍន៍",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន និងរៀបចំសំណើសុំការអនុម័តលើផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គមដោយសារគម្រោងអភិវឌ្ឍន៍",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន លើឯកសារគតិយុត្តផ្សេងៗរបស់គម្រោងដែលមានការពាក់ព័ន្ធនឹងការងារដោះស្រាយផលប៉ះពាល់ និងការធ្វើលទ្ធកម្មដីសម្រាប់បម្រើឱ្យការអនុវត្តគម្រោង",
-              "ចូលរួមចរចាលើកិច្ចព្រមព្រៀងហិរញ្ញប្បទានរបស់រដ្ឋជាមួយដៃគូអភិវឌ្ឍន៍នានា ចំពោះផ្នែកដែលពាក់ព័ន្ធនឹងការងារដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គម និងការធ្វើលទ្ធកម្មដីសម្រាប់គម្រោង",
-              "បំពេញភារកិច្ចផ្សេងទៀតតាមការកំណត់របស់អគ្គនាយកដ្ឋាន។",
-            ]
-          : [
-              "Manage the implementation of impact resolution work from domestic public investment projects, bilateral cooperation projects, multilateral cooperation projects, and private development projects under the Public-Private Partnership framework, as determined by the General Department.",
-              "Cooperate with relevant ministries and institutions in project feasibility studies and project preparation funded by development partners to assess and reduce socio-economic impacts, aiming to reduce the Royal Government's expenditure burden on impact resolution work and minimize challenges during project implementation",
-              "Prepare socio-economic impact resolution action plans for development projects",
-              "Review and provide comments to the General Department and prepare proposals for approval of socio-economic impact resolution action plans for development projects",
-              "Review and provide comments to the General Department on various legal documents of projects related to impact resolution work and land acquisition for project implementation",
-              "Participate in negotiating state financing agreements with development partners regarding socio-economic impact resolution work and land acquisition for projects",
-              "Perform other duties as assigned by the General Department.",
-            ],
-      offices:
-        currentLang === "km"
-          ? [
-              {
-                name: "ការិយាល័យគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក និងគម្រោងអភិវឌ្ឍន៍ឯកជនទី ១",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធក្នុងការងារសិក្សាសមិទ្ធិលទ្ធភាព និងការងាររៀបចំគម្រោងអភិវឌ្ឍន៍ ហិរញ្ញប្បទានពីដៃគូអភិវឌ្ឍន៍",
-                  "ចូលរួមចរចាកិច្ចព្រមព្រៀងហិរញ្ញប្បទានរបស់រដ្ឋជាមួយដៃគូអភិវឌ្ឍន៍",
-                  "រៀបចំក្រុមការងារតាមតម្រូវការចាំបាច់ជាក់ស្តែង ដើម្បីចុះអនុវត្តការងារដោះស្រាយផលប៉ះពាល់នៅតាមទីតាំងគម្រោងនីមួយៗ",
-                  "ពិនិត្យ ផ្តល់យោបល់ និងរៀបចំស្នើសុំការអនុម័តលើផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់នៃគម្រោងនីមួយៗ",
-                  "រៀបចំផែនការមេសម្រាប់អនុវត្តផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោង មុននឹងគម្រោងចាប់ផ្តើមដំណើរការ",
-                  "រៀបចំកិច្ចប្រជុំពិគ្រោះយោបល់ និងកិច្ចប្រជុំផ្សព្វផ្សាយព័ត៌មានជាសាធារណះជាមួយអាជ្ញាធរមូលដ្ឋាន និងប្រជាពលរដ្ឋរងផលប៉ះពាល់",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការទី ១",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "ផ្ទៀងផ្ទាត់ និងគ្រប់គ្រងទិន្នន័យផលប៉ះពាល់នៃគម្រោងនីមួយៗដែលទទួលបានពីក្រសួងស្ថាប័នអនុវត្តគម្រោង",
-                  "រៀបចំសំណើសុំកញ្ចប់ថវិកាសម្រាប់អនុវត្តផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គម",
-                  "សហការជាមួយការិយាល័យបុគ្គលិក រដ្ឋបាល និងហិរញ្ញវត្ថុ ក្នុងការរៀបចំគម្រោងថវិកាប្រចាំឆ្នាំ",
-                  "ពិនិត្យ និងផ្តល់យោបល់លើរបាយការណ៍នានាដូចជា របាយការណ៍ត្រួតពិនិត្យពីខាងក្រៅ",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការពហុភាគីទី ១",
-                icon: <Globe size={16} />,
-                duties: [
-                  "តាមដាន និងត្រួតពិនិត្យជាប្រចាំលើវឌ្ឍនភាពការងាររបស់គម្រោងនីមួយៗ",
-                  "ចុះពិនិត្យផ្ទៀងផ្ទាត់លើការប្រើប្រាស់ជាក់ស្តែងនូវដី ឬទ្រព្យសម្បត្តិដែលត្រូវបានធ្វើលទ្ធកម្ម",
-                  "រៀបចំរបាយការណ៍វឌ្ឍនភាពប្រចាំខែ ប្រចាំត្រីមាស ឆមាស និងប្រចាំឆ្នាំ",
-                  "រៀបចំរបាយការណ៍បញ្ចប់ការអនុវត្តគម្រោងនីមួយៗ",
-                  "រៀបចំលិខិតប្រគល់ទទួលទីតាំងដែលបានដោះស្រាយរួចជូនក្រសួងស្ថាប័នអនុវត្តគម្រោង",
-                ],
-              },
-            ]
-          : [
-              {
-                name: "Office of Domestic Public Investment and Private Development Projects 1",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "Cooperate with relevant ministries in feasibility studies and development project preparation financed by development partners",
-                  "Participate in negotiating state financing agreements with development partners",
-                  "Establish working groups as necessary to implement impact resolution work at project sites",
-                  "Review, provide comments, and prepare proposals for approval of project action plans",
-                  "Prepare master plans for implementing impact resolution action plans before project commencement",
-                  "Organize consultation meetings and public information dissemination meetings with local authorities and affected people",
-                ],
-              },
-              {
-                name: "Office of Cooperation Projects 1",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "Verify and manage impact data of each project received from implementing ministries",
-                  "Prepare budget package requests for implementing socio-economic impact resolution action plans",
-                  "Cooperate with the Office of Personnel, Administration and Finance in preparing annual budget plans",
-                  "Review and provide comments on various reports such as external inspection reports",
-                ],
-              },
-              {
-                name: "Office of Multilateral Cooperation Projects 1",
-                icon: <Globe size={16} />,
-                duties: [
-                  "Regularly monitor and inspect the progress of each project",
-                  "Inspect and verify the actual use of land or assets acquired for projects",
-                  "Prepare monthly, quarterly, semi-annual and annual progress reports",
-                  "Prepare project completion reports for each project",
-                  "Prepare handover letters for resolved sites to implementing ministries for continued use and management",
-                ],
-              },
-            ],
-    },
-    {
-      id: 3,
-      name:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ២"
-          : "Impact Resolution Department 2",
-      icon: <Building2 size={20} style={{ marginTop: "-10px" }}  />,
-      description:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ២ បំពេញមុខងារជាសេនាធិការឱ្យអគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ លើការងារដោះស្រាយផលប៉ះពាល់ដល់ដីធ្លី សំណង់ផ្ទះសម្បែង សិទ្ធិ និងទ្រព្យសម្បត្តិផ្សេងៗដែលទទួលរងផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍នានា"
-          : "Impact Resolution Department 2 serves as the chief of staff to the General Department to resolve impacts from development projects on land, housing construction, rights and other properties affected by various development projects",
-      responsibilities:
-        currentLang === "km"
-          ? [
-              "គ្រប់គ្រងការអនុវត្តការងារដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក គម្រោងកិច្ចសហប្រតិបត្តិការទ្វេភាគី គម្រោងកិច្ចសហប្រតិបត្តិការពហុភាគី និងគម្រោងអភិវឌ្ឍន៍ឯកជនក្រោមក្របខណ្ឌភាពជាដៃគូរវាងរដ្ឋ និងឯកជន នៅតាមការកំណត់របស់អគ្គនាយកដ្ឋាន។",
-              "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធក្នុងការងារសិក្សាសមិទ្ធិលទ្ធភាពគម្រោង និងការងាររៀបចំគម្រោង ដែលផ្តល់ហិរញ្ញប្បទានដោយដៃគូអភិវឌ្ឍន៍ ដើម្បីវាយតម្លៃ និងកាត់បន្ថយផលប៉ះពាល់ផ្នែកសេដ្ឋកិច្ច-សង្គម",
-              "រៀបចំផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គមដោយសារគម្រោងអភិវឌ្ឍន៍",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន និងរៀបចំសំណើសុំការអនុម័តលើផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គម",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន លើឯកសារគតិយុត្តផ្សេងៗរបស់គម្រោងដែលមានការពាក់ព័ន្ធនឹងការងារដោះស្រាយផលប៉ះពាល់ និងការធ្វើលទ្ធកម្មដី",
-              "ចូលរួមចរចាលើកិច្ចព្រមព្រៀងហិរញ្ញប្បទានរបស់រដ្ឋជាមួយដៃគូអភិវឌ្ឍន៍នានា",
-              "បំពេញភារកិច្ចផ្សេងទៀតតាមការកំណត់របស់អគ្គនាយកដ្ឋាន។",
-            ]
-          : [
-              "Manage the implementation of impact resolution work from domestic public investment projects, bilateral cooperation projects, multilateral cooperation projects, and private development projects under PPP framework",
-              "Cooperate with relevant ministries in feasibility studies and project preparation funded by development partners to assess and reduce socio-economic impacts",
-              "Prepare socio-economic impact resolution action plans for development projects",
-              "Review, provide comments, and prepare proposals for approval of socio-economic impact resolution action plans",
-              "Review and provide comments on various legal documents related to impact resolution and land acquisition",
-              "Participate in negotiating state financing agreements with development partners",
-              "Perform other duties as assigned",
-            ],
-      offices:
-        currentLang === "km"
-          ? [
-              {
-                name: "ការិយាល័យគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក និងគម្រោងអភិវឌ្ឍន៍ឯកជនទី ២",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធក្នុងការងារសិក្សាសមិទ្ធិលទ្ធភាពគម្រោង",
-                  "ចូលរួមចរចាកិច្ចព្រមព្រៀងហិរញ្ញប្បទានរបស់រដ្ឋជាមួយដៃគូអភិវឌ្ឍន៍",
-                  "រៀបចំក្រុមការងារចុះអនុវត្តការងារដោះស្រាយផលប៉ះពាល់",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការទី ២",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "ពិនិត្យ ផ្តល់យោបល់ និងរៀបចំស្នើសុំការអនុម័តលើផែនការសកម្មភាព",
-                  "រៀបចំផែនការមេសម្រាប់អនុវត្តផែនការសកម្មភាព",
-                  "រៀបចំកិច្ចប្រជុំពិគ្រោះយោបល់ជាមួយអាជ្ញាធរមូលដ្ឋាន",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការពហុភាគីទី ២",
-                icon: <Globe size={16} />,
-                duties: [
-                  "ផ្ទៀងផ្ទាត់ និងគ្រប់គ្រងទិន្នន័យផលប៉ះពាល់",
-                  "រៀបចំសំណើសុំកញ្ចប់ថវិកា",
-                  "តាមដាន និងត្រួតពិនិត្យវឌ្ឍនភាពការងារគម្រោង",
-                  "រៀបចំរបាយការណ៍វឌ្ឍនភាពប្រចាំខែ ត្រីមាស ឆមាស ប្រចាំឆ្នាំ",
-                ],
-              },
-            ]
-          : [
-              {
-                name: "Office of Domestic Public Investment and Private Development Projects 2",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "Cooperate with relevant ministries in project feasibility studies",
-                  "Participate in negotiating state financing agreements with development partners",
-                  "Establish working groups to implement impact resolution work",
-                ],
-              },
-              {
-                name: "Office of Cooperation Projects 2",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "Review, provide comments, and prepare proposals for approval of action plans",
-                  "Prepare master plans for implementing action plans",
-                  "Organize consultation meetings with local authorities",
-                ],
-              },
-              {
-                name: "Office of Multilateral Cooperation Projects 2",
-                icon: <Globe size={16} />,
-                duties: [
-                  "Verify and manage impact data",
-                  "Prepare budget package requests",
-                  "Monitor and inspect project progress",
-                  "Prepare monthly, quarterly, semi-annual and annual progress reports",
-                ],
-              },
-            ],
-    },
-    {
-      id: 4,
-      name:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ៣"
-          : "Impact Resolution Department 3",
-      icon: <Building2 size={20} style={{ marginTop: "-10px" }}  />,
-      description:
-        currentLang === "km"
-          ? "នាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ទី ៣ បំពេញមុខងារជាសេនាធិការឱ្យអគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ លើការងារដោះស្រាយផលប៉ះពាល់ដល់ដីធ្លី សំណង់ផ្ទះសម្បែង សិទ្ធិ និងទ្រព្យសម្បត្តិផ្សេងៗដែលទទួលរងផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍នានា"
-          : "Impact Resolution Department 3 serves as the chief of staff to the General Department to resolve impacts from development projects on land, housing construction, rights and other properties",
-      responsibilities:
-        currentLang === "km"
-          ? [
-              "គ្រប់គ្រងការអនុវត្តការងារដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក គម្រោងកិច្ចសហប្រតិបត្តិការទ្វេភាគី គម្រោងកិច្ចសហប្រតិបត្តិការពហុភាគី និងគម្រោងអភិវឌ្ឍន៍ឯកជនក្រោមក្របខណ្ឌភាពជាដៃគូរវាងរដ្ឋ និងឯកជន",
-              "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធក្នុងការងារសិក្សាសមិទ្ធិលទ្ធភាពគម្រោង និងការងាររៀបចំគម្រោង",
-              "រៀបចំផែនការសកម្មភាពដោះស្រាយផលប៉ះពាល់សេដ្ឋកិច្ច-សង្គមដោយសារគម្រោងអភិវឌ្ឍន៍",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន និងរៀបចំសំណើសុំការអនុម័តលើផែនការសកម្មភាព",
-              "ពិនិត្យ និងផ្តល់យោបល់ជូនអគ្គនាយកដ្ឋាន លើឯកសារគតិយុត្តរបស់គម្រោង",
-              "ចូលរួមចរចាលើកិច្ចព្រមព្រៀងហិរញ្ញប្បទានរបស់រដ្ឋជាមួយដៃគូអភិវឌ្ឍន៍",
-              "បំពេញភារកិច្ចផ្សេងទៀតតាមការកំណត់របស់អគ្គនាយកដ្ឋាន។",
-            ]
-          : [
-              "Manage impact resolution work for domestic public investment projects, bilateral, multilateral cooperation projects, and PPP projects",
-              "Cooperate with relevant ministries in project feasibility studies and project preparation",
-              "Prepare socio-economic impact resolution action plans",
-              "Review, provide comments, and prepare proposals for action plan approval",
-              "Review and provide comments on project legal documents",
-              "Participate in negotiating financing agreements with development partners",
-              "Perform other duties as assigned",
-            ],
-      offices:
-        currentLang === "km"
-          ? [
-              {
-                name: "ការិយាល័យគម្រោងវិនិយោគសាធារណៈក្នុងស្រុក និងគម្រោងអភិវឌ្ឍន៍ឯកជនទី ៣",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "ចូលរួមសហការជាមួយក្រសួងស្ថាប័នពាក់ព័ន្ធ",
-                  "ចូលរួមចរចាកិច្ចព្រមព្រៀងហិរញ្ញប្បទាន",
-                  "រៀបចំក្រុមការងារចុះអនុវត្តការងារ",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការទី ៣",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "ពិនិត្យ ផ្តល់យោបល់ និងរៀបចំស្នើសុំការអនុម័ត",
-                  "រៀបចំផែនការមេ",
-                  "រៀបចំកិច្ចប្រជុំពិគ្រោះយោបល់",
-                ],
-              },
-              {
-                name: "ការិយាល័យគម្រោងសហប្រតិបត្តិការពហុភាគីទី ៣",
-                icon: <Globe size={16} />,
-                duties: [
-                  "ផ្ទៀងផ្ទាត់ និងគ្រប់គ្រងទិន្នន័យផលប៉ះពាល់",
-                  "រៀបចំសំណើសុំកញ្ចប់ថវិកា",
-                  "តាមដាន និងត្រួតពិនិត្យវឌ្ឍនភាព",
-                  "រៀបចំរបាយការណ៍វឌ្ឍនភាពគ្រប់ប្រភេទ",
-                  "រៀបចំរបាយការណ៍បញ្ចប់ការអនុវត្តគម្រោង",
-                  "រៀបចំលិខិតប្រគល់ទទួលទីតាំង",
-                  "រៀបចំលិខិតជូនដំណឹងអគ្គនាយកដ្ឋានទ្រព្យសម្បត្តិរដ្ឋ",
-                ],
-              },
-            ]
-          : [
-              {
-                name: "Office of Domestic Public Investment and Private Development Projects 3",
-                icon: <Landmark size={16} />,
-                duties: [
-                  "Cooperate with relevant ministries and institutions",
-                  "Participate in negotiating financing agreements",
-                  "Establish working groups for implementation",
-                ],
-              },
-              {
-                name: "Office of Cooperation Projects 3",
-                icon: <Link2 size={16} />,
-                duties: [
-                  "Review, provide comments, and prepare approval requests",
-                  "Prepare master plans",
-                  "Organize consultation meetings",
-                ],
-              },
-              {
-                name: "Office of Multilateral Cooperation Projects 3",
-                icon: <Globe size={16} />,
-                duties: [
-                  "Verify and manage impact data",
-                  "Prepare budget package requests",
-                  "Monitor and inspect progress",
-                  "Prepare all types of progress reports",
-                  "Prepare project completion reports",
-                  "Prepare site handover letters",
-                  "Prepare notification letters to the State Property Department",
-                ],
-              },
-            ],
-    },
-    {
-      id: 5,
-      name:
-        currentLang === "km"
-          ? "នាយកដ្ឋានត្រួតពិនិត្យផ្ទៃក្នុង និងគ្រប់គ្រងទិន្នន័យ"
-          : "Department of Internal Inspection and Data Management",
-      icon: <Building2 size={20} style={{ marginTop: "-10px" }} />,
-      description:
-        currentLang === "km"
-          ? "នាយកដ្ឋានត្រួតពិនិត្យផ្ទៃក្នុង និងគ្រប់គ្រងទិន្នន័យ បំពេញមុខងារជាសេនាធិការឱ្យអគ្គនាយកដ្ឋានដោះស្រាយផលប៉ះពាល់ដោយសារគម្រោងអភិវឌ្ឍន៍ លើការងារត្រួតពិនិត្យផ្ទៃក្នុង ការងារគ្រប់គ្រងទិន្នន័យតាមប្រព័ន្ធព័ត៌មានវិទ្យា និងការងារទទួលពិនិត្យពាក្យបណ្តឹងតវ៉ា និងទំនាក់ទំនងសាធារណៈ"
-          : "The Department of Internal Inspection and Data Management serves as the chief of staff to the General Department on internal inspection, data management through information technology systems, and complaint handling and public relations",
-      responsibilities:
-        currentLang === "km"
-          ? [
-              "ត្រួតពិនិត្យភាពត្រឹមត្រូវ និងអនុលោមភាពនៃការអនុវត្តការងារដោះស្រាយផលប៉ះពាល់",
-              "រៀបចំផែនការត្រួតពិនិត្យប្រចាំឆ្នាំ",
-              "ត្រួតពិនិត្យ និងគ្រប់គ្រងទិន្នន័យផលប៉ះពាល់",
-              "ធ្វើរបាយការណ៍ស្តីពីលទ្ធផលនៃការត្រួតពិនិត្យផ្ទៃក្នុង",
-              "ពិនិត្យលើពាក្យបណ្តឹងរបស់ប្រជាពលរដ្ឋ",
-              "តំណាងឱ្យអគ្គនាយកដ្ឋានក្នុងករណីបណ្ដឹងតវ៉ាទៅតុលាការ",
-              "រៀបចំយុទ្ធសាស្ត្រសម្រាប់ការចូលរួម និងទំនាក់ទំនង",
-              "រៀបចំយុទ្ធសាស្ត្រក្នុងការរៀបចំកិច្ចប្រជុំពិគ្រោះយោបល់",
-              "បំពេញភារកិច្ចផ្សេងទៀតតាមការកំណត់",
-            ]
-          : [
-              "Inspect the accuracy and compliance of impact resolution implementation",
-              "Prepare annual inspection plans",
-              "Inspect and manage impact data",
-              "Prepare reports on internal inspection results",
-              "Review complaints from affected people",
-              "Represent the General Department in court complaint cases",
-              "Develop strategies for stakeholder engagement and communication",
-              "Develop strategies for organizing consultation meetings",
-              "Perform other duties as assigned",
-            ],
-      offices:
-        currentLang === "km"
-          ? [
-              {
-                name: "ការិយាល័យត្រួតពិនិត្យផ្ទៃក្នុង",
-                icon: <UserCheck size={16} />,
-                duties: [
-                  "ចុះត្រួតពិនិត្យដំណើរការអង្កេតវាស់វែងលម្អិត",
-                  "ត្រួតពិនិត្យរាល់ឯកសារអង្កេតវាស់វែង",
-                  "ផ្ទៀងផ្ទាត់សំណើដកសាច់ប្រាក់",
-                  "រៀបចំផែនការត្រួតពិនិត្យប្រចាំឆ្នាំ",
-                  "ធ្វើរបាយការណ៍ពីលទ្ធផលនៃការចុះត្រួតពិនិត្យ",
-                ],
-              },
-              {
-                name: "ការិយាល័យគ្រប់គ្រងទិន្នន័យ",
-                icon: <Database size={16} />,
-                duties: [
-                  "សហការជាមួយការិយាល័យបច្ចេកវិទ្យាព័ត៌មាន",
-                  "គ្រប់គ្រងរាល់ទិន្នន័យផលប៉ះពាល់",
-                  "ផ្តល់ការគាំទ្រដល់ការិយាល័យត្រួតពិនិត្យផ្ទៃក្នុង",
-                ],
-              },
-              {
-                name: "ការិយាល័យទទួលពាក្យបណ្តឹង និងទំនាក់ទំនងសាធារណៈ",
-                icon: <MessageCircle size={16} />,
-                duties: [
-                  "ទទួលពាក្យបណ្តឹង និងចុះពិនិត្យនៅទីតាំងជាក់ស្តែង",
-                  "ផ្តល់យោបល់ចំពោះករណីពាក្យបណ្ដឹង",
-                  "កែលម្អកំហុសឆ្គងផ្នែកបច្ចេកទេស និងនីតិវិធី",
-                ],
-              },
-            ]
-          : [
-              {
-                name: "Office of Internal Inspection",
-                icon: <UserCheck size={16} />,
-                duties: [
-                  "Inspect detailed impact survey processes",
-                  "Review all survey documents",
-                  "Verify cash withdrawal requests",
-                  "Prepare annual inspection plans",
-                  "Prepare reports on inspection results",
-                ],
-              },
-              {
-                name: "Office of Data Management",
-                icon: <Database size={16} />,
-                duties: [
-                  "Cooperate with Office of Information Technology",
-                  "Manage all impact data",
-                  "Provide support to the Internal Inspection Office",
-                ],
-              },
-              {
-                name: "Office of Complaint Reception and Public Relations",
-                icon: <MessageCircle size={16} />,
-                duties: [
-                  "Receive complaints and inspect at actual locations",
-                  "Provide recommendations on complaint cases",
-                  "Improve technical and procedural errors",
-                ],
-              },
-            ],
-    },
-  ];
-
-  const leadershipList = [
-    {
-      role: currentLang === "km" ? "អគ្គនាយក" : "Director General",
-      icon: <Users size={20} style={{ marginTop: "-10px" }} />,
-    },
-    {
-      role: currentLang === "km" ? "អគ្គនាយករង" : "Deputy Director General",
-      icon: <Users size={20} style={{ marginTop: "-10px" }} />,
-    },
-    {
-      role: currentLang === "km" ? "ប្រធាននាយកដ្ឋាន" : "Department Director",
-      icon: <Users size={20} style={{ marginTop: "-10px" }} />,
-    },
-  ];
+  const departmentList = getDepartmentList();
+  const leadershipList = getLeadershipList();
 
   const handleOpenModal = (department) => {
     setSelectedDepartment(department);
@@ -750,7 +286,7 @@ const RolesResponsibilitiesPage = () => {
               {/* Department Header */}
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-[#4CAF50] bg-opacity-10 rounded-xl text-[#2E7D32]">
-                  {selectedDepartment.icon}
+                  <Building2 size={20} />
                 </div>
                 <div className="flex-1">
                   <h1 className="text-xl sm:text-2xl font-medium text-gray-900 mb-2">
@@ -767,7 +303,7 @@ const RolesResponsibilitiesPage = () => {
                 selectedDepartment.responsibilities.length > 0 && (
                   <div className="bg-gray-50 rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <Target size={18} className="text-[#2E7D32]" style={{ marginTop: "-13px" }} />
+                      <Target size={18} className="text-[#2E7D32]" />
                       <h2 className="text-base font-medium text-gray-900">
                         {t.responsibilities}
                       </h2>
@@ -791,7 +327,7 @@ const RolesResponsibilitiesPage = () => {
                 selectedDepartment.offices.length > 0 && (
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <Building2 size={18} className="text-[#2E7D32]" style={{ marginTop: "-10px" }} />
+                      <Building2 size={18} className="text-[#2E7D32]" />
                       <h2 className="text-base font-medium text-gray-900">
                         {t.offices}
                       </h2>
@@ -802,14 +338,9 @@ const RolesResponsibilitiesPage = () => {
                           key={idx}
                           className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all"
                         >
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="p-1.5 bg-[#4CAF50] bg-opacity-10 rounded-lg text-[#2E7D32]" style={{ marginTop: "-10px" }} >
-                              {office.icon}
-                            </div>
-                            <h3 className="text-sm font-medium text-gray-900">
-                              {office.name}
-                            </h3>
-                          </div>
+                          <h3 className="text-sm font-medium text-gray-900 mb-3">
+                            {office.name}
+                          </h3>
                           {office.duties && office.duties.length > 0 && (
                             <>
                               <div className="text-xs font-medium text-gray-500 mb-2">
@@ -899,7 +430,6 @@ const RolesResponsibilitiesPage = () => {
           <div className="flex flex-col items-center justify-center mb-6 text-center">
             <div className="flex items-center space-x-2">
               <Target
-
                 size={20}
                 className="text-[#2E7D32]"
                 style={{ marginTop: "-15px" }}
@@ -948,13 +478,13 @@ const RolesResponsibilitiesPage = () => {
             <div className="space-y-3">
               {departmentList.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id || index}
                   onClick={() => handleOpenModal(item)}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:shadow-gray-200/50 hover:border-[#4CAF50] transition-all duration-300 cursor-pointer group"
                 >
                   <div className="flex items-start space-x-3">
                     <div className="p-2 bg-[#4CAF50] bg-opacity-10 rounded-lg text-[#2E7D32] group-hover:bg-[#4CAF50] group-hover:text-white transition-colors duration-300">
-                      {item.icon}
+                      <Building2 size={20} style={{ marginTop: "-10px" }} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
@@ -988,17 +518,23 @@ const RolesResponsibilitiesPage = () => {
             <div className="space-y-3">
               {leadershipList.map((item, index) => (
                 <div
-                  key={index}
+                  key={item.id}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:shadow-gray-200/50 hover:border-[#4CAF50] transition-all duration-300"
                 >
                   <div className="flex items-start space-x-3">
                     <div className="p-2 bg-[#4CAF50] bg-opacity-10 rounded-lg text-[#2E7D32]">
-                      {item.icon}
+                      <Users size={20} style={{ marginTop: "-10px" }} />
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 mb-1">
-                        {item.role}
+                        {currentLang === "km" ? item.roleKh : item.roleEn}
                       </h3>
+                      {item.nameKh && currentLang === "km" && (
+                        <p className="text-xs text-gray-500">{item.nameKh}</p>
+                      )}
+                      {item.nameEn && currentLang === "en" && (
+                        <p className="text-xs text-gray-500">{item.nameEn}</p>
+                      )}
                     </div>
                   </div>
                 </div>

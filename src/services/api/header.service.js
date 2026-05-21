@@ -10,13 +10,13 @@ class HeaderService {
   async getHeaderConfig() {
     const response = await apiService.get(envConfig.endpoints.sections.header);
     
-    console.log('Header API Raw Response:', response);
+   
     
     if (response.success && response.data) {
       // The actual data is in response.data.data
       const actualData = response.data.data || response.data;
       
-      console.log('Header actualData:', actualData);
+    
       
       return {
         success: true,
@@ -37,8 +37,7 @@ class HeaderService {
   transformData(data) {
     if (!data) return null;
 
-    console.log('Header transformData input:', data);
-
+   
     return {
       id: data._id || null,
       
@@ -73,11 +72,11 @@ class HeaderService {
    */
   extractTexts(textArray) {
     if (!Array.isArray(textArray)) {
-      console.log('extractTexts - not an array:', textArray);
+     
       return [];
     }
     const texts = textArray.map(item => item.text || '').filter(Boolean);
-    console.log('extractTexts - result:', texts);
+   
     return texts;
   }
 
@@ -92,7 +91,7 @@ class HeaderService {
     }
     
     const urls = bannersArray.map(item => item.url || '').filter(Boolean);
-    console.log('extractBannerUrls - result:', urls);
+   
     return urls;
   }
 

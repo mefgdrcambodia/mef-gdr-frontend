@@ -9,7 +9,7 @@ import Container from "../components/ui/Container.jsx";
 import GlobalBanner from "../components/ui/GlobalBanner.jsx";
 import RunningText from "../components/ui/RunningText";
 import { useLegalDocuments } from "../hooks/useLegal";
-import defaultThumbnail from "../images/pdf/thumbnails/Lor.jpg";
+
 
 const DeclarationPage = () => {
   const [currentLang, setCurrentLang] = useState(() => localStorage.getItem("language") || "km");
@@ -118,7 +118,7 @@ const DeclarationPage = () => {
   const getCategoryDisplayName = () => currentLang === 'km' ? 'ប្រកាស' : 'Declaration';
   const getCategoryIcon = () => <Megaphone size={14} />;
   const getCategoryColor = () => "bg-orange-50 text-orange-700 border-orange-200";
-  const getThumbnail = (doc) => doc.coverImage || defaultThumbnail;
+  const getThumbnail = (doc) => doc.coverImage;
 
   const translations = {
     km: {
@@ -290,7 +290,7 @@ const DeclarationPage = () => {
                 <div key={doc.id} className="bg-white rounded-xl border border-gray-200 hover:shadow-md hover:border-[#4CAF50]/30 transition-all duration-200 cursor-pointer overflow-hidden" onClick={() => handleDocumentClick(doc)}>
                   <div className="flex flex-col sm:flex-row p-4 gap-4">
                     <div className="relative w-full sm:w-36 h-32 sm:h-full min-h-[128px] bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={thumbnail} alt={title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src = defaultThumbnail; }} />
+                      <img src={thumbnail} alt={title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                       <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-1.5 py-0.5 rounded-md text-[10px] font-medium">PDF</div>
                       <div className="absolute bottom-2 left-2"><span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border ${getCategoryColor()}`}>{getCategoryIcon()}<span className="hidden sm:inline">{getCategoryDisplayName()}</span></span></div>
                     </div>
@@ -375,7 +375,7 @@ const DeclarationPage = () => {
               
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="relative w-56 h-auto min-h-[288px] bg-gray-100 rounded-xl overflow-hidden shadow-lg flex-shrink-0 mx-auto md:mx-0">
-                  <img src={getThumbnail(selectedDocument)} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = defaultThumbnail; }} />
+                  <img src={getThumbnail(selectedDocument)} alt="" className="w-full h-full object-cover"/>
                   <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded-lg text-xs font-medium">PDF</div>
                 </div>
                 <div className="flex-1">

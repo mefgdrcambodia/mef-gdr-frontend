@@ -14,17 +14,17 @@ export const useHeader = (language = 'km') => {
       
       const response = await headerService.getHeaderConfig();
       
-      console.log('useHeader response:', response);
+      
       
       if (response.success && response.data) {
         setData(response.data);
-        console.log('useHeader data set:', response.data);
+        
       } else {
         setData(null);
         setError(response.error || 'Failed to fetch header data');
       }
     } catch (err) {
-      console.error('Error fetching header data:', err);
+      
       setData(null);
       setError(err.message);
     } finally {
@@ -48,7 +48,7 @@ export const useHeader = (language = 'km') => {
     if (!data) return [];
     
     const texts = language === 'km' ? data.runningTextKh : data.runningTextEn;
-    console.log('useHeader getRunningTexts:', texts);
+   ;
     return texts || [];
   }, [data, language]);
 

@@ -9,13 +9,13 @@ class ManagementStructureService {
   async getManagementStructure() {
     const response = await apiService.get(envConfig.endpoints.managementStructure.get);
     
-    console.log('Management Structure API Response:', response);
+    
     
     if (response.success && response.data) {
       // The actual data is in response.data.data
       const actualData = response.data.data || response.data;
       
-      console.log('Management Structure actualData:', actualData);
+      
       
       return {
         success: true,

@@ -12,7 +12,7 @@ class PhotoAlbumService {
 
     const response = await apiService.get(envConfig.endpoints.photoAlbum.getAll, params);
     
-    console.log('Photo Album API Response:', response);
+    
     
     if (response.success && response.data) {
       const body = response.data;

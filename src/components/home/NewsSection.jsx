@@ -19,8 +19,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNews } from "../../hooks/useNews";
-import defaultImg from "../../images/defuat_img.jpg";
-
 // ── localStorage helpers ────────────────────────────────────────────────────
 const getCount = (key) => parseInt(localStorage.getItem(key) || "0");
 const setCount = (key, val) => localStorage.setItem(key, String(val));
@@ -330,12 +328,9 @@ const NewsSection = ({ onViewAll }) => {
         <div className="flex gap-3">
           <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100">
             <img
-              src={item.mainImage || defaultImg}
+              src={item.mainImage}
               alt={title}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.src = defaultImg;
-              }}
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -467,12 +462,9 @@ const NewsSection = ({ onViewAll }) => {
                       onClick={() => handleReadMore(item)}
                     >
                       <img
-                        src={item.mainImage || defaultImg}
+                        src={item.mainImage}
                         alt={currentLang === "km" ? item.titleKh : item.titleEn}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = defaultImg;
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
@@ -603,7 +595,7 @@ const NewsSection = ({ onViewAll }) => {
             )}
 
             {/* Grid Cards - 2 lines for title and summary */}
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {featuredSlides.slice(0, 6).map((item) => {
                 const title =
@@ -618,12 +610,9 @@ const NewsSection = ({ onViewAll }) => {
                   >
                     <div className="relative h-32 sm:h-36 md:h-40 overflow-hidden bg-gray-100 flex-shrink-0">
                       <img
-                        src={item.mainImage || defaultImg}
+                        src={item.mainImage}
                         alt={title}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = defaultImg;
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                       <div className="absolute top-2 left-2">
@@ -792,16 +781,13 @@ const NewsSection = ({ onViewAll }) => {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             <div className="relative h-56 sm:h-80 md:h-96 lg:h-[400px] rounded-xl overflow-hidden mb-6 sm:mb-8 bg-gray-100">
               <img
-                src={selectedNews.mainImage || defaultImg}
+                src={selectedNews.mainImage}
                 alt={
                   currentLang === "km"
                     ? selectedNews.titleKh
                     : selectedNews.titleEn
                 }
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = defaultImg;
-                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
@@ -830,11 +816,13 @@ const NewsSection = ({ onViewAll }) => {
                 </div>
               )}
               <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
-                <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-white leading-tight break-words hyphens-auto">
-                  {currentLang === "km"
-                    ? selectedNews.titleKh
-                    : selectedNews.titleEn}
-                </h1>
+              <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-white break-words hyphens-auto"
+                  style={{ lineHeight: '1.5' }}>
+                {currentLang === "km"
+                  ? selectedNews.titleKh
+                  : selectedNews.titleEn}
+              </h1>
+
               </div>
             </div>
 
@@ -908,9 +896,6 @@ const NewsSection = ({ onViewAll }) => {
                         src={img}
                         alt={`img-${idx + 1}`}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.target.src = defaultImg;
-                        }}
                       />
                       {idx === 7 && selectedNews.images.length > 8 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -956,9 +941,6 @@ const NewsSection = ({ onViewAll }) => {
               src={selectedNews.images[selectedImageIndex]}
               alt={`img-${selectedImageIndex + 1}`}
               className="max-w-full max-h-[90vh] object-contain"
-              onError={(e) => {
-                e.target.src = defaultImg;
-              }}
             />
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-sm whitespace-nowrap">
               {selectedImageIndex + 1} / {selectedNews.images.length}
